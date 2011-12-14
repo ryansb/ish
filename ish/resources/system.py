@@ -30,6 +30,9 @@ class System(ImpulseObject):
 	sys_type = None # Server, Desktop, Laptop, etc
 	os_name = None # Primary operating system
 	comment = None # Comment on the system (or NULL for no comment)
+	removal_parameter = system_name # What parameter does the deletion query require?
+	removal_query = """SELECT api.remove_system('{name}');""" # Query that removes the object
+	creation_query = """SELECT api.create_system('{name}', '{owner}', '{sys_type}', '{os_name}', '{comment}')""" # Query to create an object
 
 	def __init__(self, name=None, owner=None, sys_type=None, os=None, comment=None):
 		self.system_name = name
@@ -37,3 +40,9 @@ class System(ImpulseObject):
 		self.sys_type = sys_type
 		self.os_name = os
 		self.comment = comment
+
+
+class Interface(ImpulseObject):
+	pass
+
+

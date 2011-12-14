@@ -29,17 +29,19 @@ sys.path.insert(0,".")
 from pkg_resources import resource_listdir
 
 OBJS = []
-def ls():
-	print "\n".join(OBJS)
+
+class LS(object):
+	def __repr__(self):
+		return self.__call__()
+	def __call__(self):
+		return "\n".join(OBJS)
 
 if __name__ == "__main__":
 	#do something about logging sometime
 	from ish.resources.user import User
-	from ish.resources.auth import Auth
 	import code
 	import readline
-	#local = {"User": User, "env": botoweb.env, "Authorization": Authorization}
-	local = {"User": User, "Auth": Auth}
+	local = {"User": User}
 	sys.ps1 = "\x01\x1b[34m\x1b[1m\x02>>> \x01\x1b[0m\x02"
 	sys.ps2 = "... "
 	for f in resource_listdir("ish.resources", ""):
@@ -49,5 +51,10 @@ if __name__ == "__main__":
 				__import__("ish.resources.%s" % m)
 
 	OBJS = local.keys()
-	local["ls"] = ls
-	code.interact(banner="Impulse Shell\nUse Ctrl+D to exit\nls() prints all loaded classes", local=local)
+	local["ls"] = LS()
+	code.interact(banner="Impulse Shell\nUse Ctrl+D to exit\nls prints all loaded classes", local=local)
+
+
+
+
+

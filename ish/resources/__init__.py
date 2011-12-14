@@ -46,11 +46,25 @@ class EnumAuth(object):
 
 class ImpulseObject(object):
 	removal_parameter = ""
-	pass
+	creation_query = ""
+	removal_query = ""
 
 	def create(self):
-		pass
+		raise NotImplementedError
 
 	def remove(self):
-		self.__dict__[self.removal_parameter]
+		#run this query on the db
+		self.removal_query.format(param=self.__dict__[self.removal_parameter])
 		pass
+
+	def put(self, debug=False):
+		"""
+		Description: Saves this object to the database in its current state
+		:param debug: If debug is on, will return the exact query that was run
+		:type bool:
+
+		:rtype: bool:
+		:return: Returns True if save was successfull, false otherwise
+		"""
+		raise NotImplementedError
+
