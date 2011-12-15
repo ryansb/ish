@@ -39,6 +39,7 @@ setup(name = "ish",
 		},
 		scripts = [
 			'bin/shell.py',
+			'bin/ish',
 		],
 		license = 'NONE',
 		platforms = 'Posix; MacOS X; Windows',

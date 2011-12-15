@@ -49,13 +49,29 @@ class ImpulseObject(object):
 	creation_query = ""
 	removal_query = ""
 
-	def create(self):
-		raise NotImplementedError
+	def create(self, query):
+		import psycopg2
+		#TODO: actually connect to the DB
+		conn = psycopg2.connect()
+		cur = conn.cursor()
+		print """Executing query "%s" """ % query
+		cur.execute(query)
+		cur.commit()
+		cur.close()
+		conn.close()
 
 	def remove(self):
 		#run this query on the db
-		self.removal_query.format(param=self.__dict__[self.removal_parameter])
-		pass
+		query = self.removal_query % (self.__dict__[self.removal_parameter])
+		import psycopg2
+		#TODO: actually connect to the DB
+		conn = psycopg2.connect()
+		cur = conn.cursor()
+		print """Executing query "%s" """ % query
+		cur.execute(query)
+		cur.commit()
+		cur.close()
+		conn.close()
 
 	def put(self, debug=False):
 		"""
@@ -67,4 +83,3 @@ class ImpulseObject(object):
 		:return: Returns True if save was successfull, false otherwise
 		"""
 		raise NotImplementedError
-
