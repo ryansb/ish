@@ -30,39 +30,19 @@ class System(ImpulseObject):
 	sys_type = None # Server, Desktop, Laptop, etc
 	os_name = None # Primary operating system
 	comment = None # Comment on the system (or NULL for no comment)
-	removal_parameter = "system_name" # What parameter does the deletion query require?
-	removal_query = """SELECT api.remove_system('%s');""" # Query that removes the object
-	creation_query = """SELECT api.create_system('{name}', '{owner}', '{sys_type}', '{os_name}', '{comment}');""" # Query to create an object
+	removal_parameter = system_name # What parameter does the deletion query require?
+	removal_query = """SELECT api.remove_system('{name}');""" # Query that removes the object
+	creation_query = """SELECT api.create_system('{name}', '{owner}', '{sys_type}', '{os_name}', '{comment}')""" # Query to create an object
 
-	def __init__(self, name, owner, sys_type=None, os=None, comment=None):
-		if name: self.system_name = name
-		if owner: self.owner = owner
-		if sys_type: self.sys_type = sys_type
-		if os: self.os_name = os
-		if comment: self.comment = comment
-		else: comment = 'NULL'
-
-	def create(self):
-		query = self.creation_query.format(name=self.system_name, owner=self.owner, sys_type=self.sys_type, os_name=self.os_name, comment=self.comment)
-		ImpulseObject.create(self, query)
-		return True
+	def __init__(self, name=None, owner=None, sys_type=None, os=None, comment=None):
+		self.system_name = name
+		self.owner = owner
+		self.sys_type = sys_type
+		self.os_name = os
+		self.comment = comment
 
 
 class Interface(ImpulseObject):
-	system_name = None
-	mac = None
-	comment = None
-	removal_parameter = "mac" # What parameter does the deletion query require?
-	removal_query = """SELECT api.remove_interface('%s');""" # Query that removes the object
-	creation_query = """SELECT api.create_interface('{name}', '{mac}', '{comment}');""" # Query to create an object
+	pass
 
-	def __init__(self, name, mac, comment=None):
-		self.system_name = name
-		self.mac = mac
-		if comment: self.comment = comment
-		else: self.comment = 'NULL'
-
-	def create(self):
-		query = self.creation_query.format(name=self.system_name, mac=self.mac, comment=self.comment)
-		ImpulseObject.create(self, query)
 

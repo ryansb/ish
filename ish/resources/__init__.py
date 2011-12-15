@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ish import DB_NAME
-
 class EnumAuth(object):
 	Admin = 0
 	User = 1
@@ -51,27 +49,13 @@ class ImpulseObject(object):
 	creation_query = ""
 	removal_query = ""
 
-	def create(self, query):
-		import psycopg2
-		conn = psycopg2.connect(DB_NAME)
-		cur = conn.cursor()
-		print """Executing query "%s" """ % query
-		cur.execute(query)
-		cur.commit()
-		cur.close()
-		conn.close()
+	def create(self):
+		raise NotImplementedError
 
 	def remove(self):
 		#run this query on the db
-		query = self.removal_query % (self.__dict__[self.removal_parameter])
-		import psycopg2
-		conn = psycopg2.connect(DB_NAME)
-		cur = conn.cursor()
-		print """Executing query "%s" """ % query
-		cur.execute(query)
-		cur.commit()
-		cur.close()
-		conn.close()
+		self.removal_query.format(param=self.__dict__[self.removal_parameter])
+		pass
 
 	def put(self, debug=False):
 		"""
