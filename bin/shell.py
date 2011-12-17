@@ -26,22 +26,32 @@
 
 import sys
 sys.path.insert(0,".")
+from ish import auth
 from pkg_resources import resource_listdir
 
 OBJS = []
+current_user = None
 
-class LS(object):
+class Ls(object):
 	def __repr__(self):
 		return self.__call__()
 	def __call__(self):
 		return "\n".join(OBJS)
 
+class Auth(object):
+	def __repr__(self):
+		return self.__call__()
+
+	def __call__(self):
+		(user, msg) = auth()
+
+
 if __name__ == "__main__":
 	#do something about logging sometime
-	from ish.resources.user import User
+	from ish.resources.System import System
 	import code
 	import readline
-	local = {"User": User}
+	local = {"System": System}
 	sys.ps1 = "\x01\x1b[34m\x1b[1m\x02>>> \x01\x1b[0m\x02"
 	sys.ps2 = "... "
 	for f in resource_listdir("ish.resources", ""):
@@ -51,7 +61,8 @@ if __name__ == "__main__":
 				__import__("ish.resources.%s" % m)
 
 	OBJS = local.keys()
-	local["ls"] = LS()
+	local["ls"] = Ls()
+	local["auth"] = Auth()
 	code.interact(banner="Impulse Shell\nUse Ctrl+D to exit\nls prints all loaded classes", local=local)
 
 

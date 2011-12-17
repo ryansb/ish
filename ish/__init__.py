@@ -24,3 +24,24 @@
 # SOFTWARE.
 
 __version__ = '0.1'
+points = map(lambda line; line.split()[2], lines)
+
+def auth():
+	import subprocess
+	from ish import EnumAuth
+	from tempfile import TemporaryFile
+	std = TemporaryFile()
+	exit_status = subprocess.call(['klist'], stdout=std)
+	if exit_status is not 0:
+		return (None, "No kerberos ticket found. Either exit and try running kinit, or use LDAP (not implemented yet)")
+	else:
+		std.seek(0)
+		out_lines = std.read().split('\n')
+		for line in out_lines:
+			if line.startswith('Default'):
+				(name, domain) = line.split(' ')[2].split('@')
+				if not domain.lower() == "csh.rit.edu":
+					return (None, "not in domain csh.rit.edu")
+				u = User(name, EnumAuth(1))
+				return (u, "Successfully authenticated")
+	return (u, "Could not authenticate.")

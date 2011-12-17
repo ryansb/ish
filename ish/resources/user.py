@@ -30,9 +30,10 @@ class User(object):
 	password = ""
 	__auth__ = EnumAuth(2)
 
-	def __init__(self, username, password):
-		#auth a user using ldap to do whatever it is they're permitted to do
-		pass
+	def __init__(self, username, auth, password=None):
+		self.username = username
+		self.password = password
+		self.__auth__ = auth
 
 	def auth(self):
 		return self.__auth__.value
