@@ -40,15 +40,16 @@ class Ls(object):
 
 class Auth(object):
 	def __repr__(self):
-		return self.__call__()
+		(user, msg) = self.__call__()
+		return msg
 
 	def __call__(self):
-		(user, msg) = auth()
+		return auth()
 
 
 if __name__ == "__main__":
 	#do something about logging sometime
-	from ish.resources.System import System
+	from ish.resources.system import System
 	import code
 	import readline
 	local = {"System": System}

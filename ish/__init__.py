@@ -24,11 +24,11 @@
 # SOFTWARE.
 
 __version__ = '0.1'
-points = map(lambda line; line.split()[2], lines)
+from ish.resources.user import User
 
 def auth():
 	import subprocess
-	from ish import EnumAuth
+	from ish.resources import EnumAuth
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
 	exit_status = subprocess.call(['klist'], stdout=std)
