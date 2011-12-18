@@ -64,4 +64,4 @@ if __name__ == "__main__":
 	OBJS = local.keys()
 	local["ls"] = Ls()
 	local["auth"] = Auth()
-	code.interact(banner="Impulse Shell\nUse Ctrl+D to exit\nls prints all loaded classes", local=local)
+	code.interact(banner="Impulse Shell\nUse Ctrl+D to exit\nls prints all loaded classes\nauth attempts to authenticate against kerberos credentials", local=local)
