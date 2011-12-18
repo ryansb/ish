@@ -25,32 +25,39 @@
 from ish.resources import ImpulseObject
 
 class System(ImpulseObject):
-	system_name = None # Name of the system
+	name = None # Name of the system
 	owner = None # Owning user (NULL for current authenticated user)
 	sys_type = None # Server, Desktop, Laptop, etc
 	os_name = None # Primary operating system
 	comment = None # Comment on the system (or NULL for no comment)
-	removal_parameter = "system_name" # What parameter does the deletion query require?
+	removal_parameter = "name" # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');""" # Query that removes the object
-	creation_query = """SELECT api.create_system('{name}', '{owner}', '{sys_type}', '{os_name}', '{comment}')""" # Query to create an object
+	creation_query = """SELECT api.create_system('{name}', '{owner}', '{sys_type}', '{os_name}', '{comment}');""" # Query to create an object
 
-	def __init__(self, name=None, owner=None, sys_type=None, os=None, comment=None):
-		self.system_name = name
-		self.owner = owner
+	#def __init__(self, ):
+	def __init__(self, user, dbcursor, name=None, sys_type=None, os=None, comment=None):
+		self.user = user
+		self.cursor = dbcursor
+		self.name = name
 		self.sys_type = sys_type
 		self.os_name = os
 		self.comment = comment
-		if name and owner and sys_type and os: self.create()
+		ImpulseObject.__init__(self, user, dbcursor)
+		if name and sys_type and os: self.create()
 
 	def create(self):
-		if not (self.system_name and self.owner and self.sys_type and self.os_name):
-			raise Exception("Missing Parameter.\nSystem name: %s\nOwner: %s\nSystem type: %s\nOS: %s\n"
-					% (self.system_name, self.owner, self.sys_type, self.os_name))
+		if not (self.name and self.owner and self.sys_type and self.os_name):
+			print ("Missing Parameter.\nSystem name: %s\nOwner: %s\nSystem type: %s\nOS: %s"
+					% (self.name, self.owner, self.sys_type, self.os_name))
+			return False
+		if not self.cursor:
+			print "No database connection"
+			return False
 		if not self.comment: self.comment = "NULL"
-		query = self.creation_query.format(name=self.system_name,
+		query = self.creation_query.format(name=self.name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
-		return ImpulseObject.create(query)
+		return ImpulseObject.create(self, query)
 
 
 class Interface(ImpulseObject):
@@ -59,9 +66,22 @@ class Interface(ImpulseObject):
 	comment = None # Comment on the system (or NULL for no comment)
 	removal_parameter = "mac" # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_interface('%s');""" # Query that removes the object
-	creation_query = """SELECT api.create_interface('{name}', '{mac}', {comment}')""" # Query to create an object
+	creation_query = """SELECT api.create_interface('{name}', '{mac}', {comment}');""" # Query to create an object
 
-	def __init__(self, name, mac, comment=None):
-		self.system_name = name
+	def __init__(self, user, dbcursor, system_name=None, mac=None, comment=None):
+		self.system_name = system_name
 		self.mac = mac
 		self.comment = comment
+		ImpulseObject.__init__(self, user, dbcursor)
+
+	def create(self):
+		if not (self.system_name and self.mac):
+			print ("Missing Parameter.\nSystem name: %s\nMAC: %s"
+					% (self.system_name, self.mac))
+			return False
+		if not self.cursor: 
+			print "No database connection"
+			return False
+		if not self.comment: self.comment = "NULL"
+		query = self.creation_query.format(name=self.system_name, mac=self.mac, comment=self.comment)
+		return ImpulseObject.create(self, query)

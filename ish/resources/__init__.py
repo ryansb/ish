@@ -48,30 +48,24 @@ class ImpulseObject(object):
 	removal_parameter = ""
 	creation_query = ""
 	removal_query = ""
+	user = None
+	cursor = None
+
+	def __init__(self, user, dbcursor):
+		self.user = user
+		self.cursor = dbcursor
 
 	def create(self, query):
-		import psycopg2
-		#TODO: actually connect to the DB
-		conn = psycopg2.connect()
-		cur = conn.cursor()
 		print """Executing query "%s" """ % query
-		cur.execute(query)
-		cur.commit()
-		cur.close()
-		conn.close()
+		self.cursor.execute(query)
+		self.cursor.commit()
 
 	def remove(self):
 		#run this query on the db
 		query = self.removal_query % (self.__dict__[self.removal_parameter])
-		import psycopg2
-		#TODO: actually connect to the DB
-		conn = psycopg2.connect()
-		cur = conn.cursor()
 		print """Executing query "%s" """ % query
-		cur.execute(query)
-		cur.commit()
-		cur.close()
-		conn.close()
+		self.cursor.execute(query)
+		self.cursor.commit()
 
 	def put(self, debug=False):
 		"""
