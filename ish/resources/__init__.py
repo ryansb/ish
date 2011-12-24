@@ -22,11 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 class EnumAuth(object):
 	Admin = 0
 	User = 1
 	NoAuth = 2
 	Test = 3
+
 	def __init__(self, Type):
 		self.value = Type
 
@@ -40,8 +42,8 @@ class EnumAuth(object):
 		if self.value == EnumAuth.Test:
 			return 'Test'
 
-	def __eq__(self,y):
-		return self.value==y.value
+	def __eq__(self, y):
+		return self.value == y.value
 
 
 class ImpulseObject(object):
@@ -78,13 +80,15 @@ class ImpulseObject(object):
 		"""
 		raise NotImplementedError
 
+
 class Singleton(type):
 	_instances = {}
+
 	def __call__(cls, *args, **kwargs):
 		if cls not in cls._instances:
 			cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
 		return cls._instances[cls]
 
+
 class DBConn(object):
 	__metaclass__ = Singleton
-
