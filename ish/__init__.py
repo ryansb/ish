@@ -31,7 +31,8 @@ def auth():
 	from ish.resources import EnumAuth
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
-	exit_status = subprocess.call(['klist'], stdout=std)
+	t = subprocess.call(['klist'], stdout=std)
+	exit_status = subprocess.call(['klist', '-s'])
 	if exit_status is not 0:
 		return (None, "No kerberos ticket found. Either exit and try running kinit, or use LDAP (not implemented yet)")
 	else:
