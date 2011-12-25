@@ -55,7 +55,7 @@ if __name__ == "__main__":
 	from ish.resources.system import System
 	import code
 	import readline
-	local = {"System": System}
+	local = {}
 	sys.ps1 = "\x01\x1b[34m\x1b[1m\x02>>> \x01\x1b[0m\x02"
 	sys.ps2 = "... "
 	for f in resource_listdir("ish.resources", ""):
