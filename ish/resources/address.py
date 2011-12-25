@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
-# Description: 
+# Description:
 #
 # Copyright (c) 2011 Ryan Brown ryansb@csh.rit.edu
 #
@@ -24,14 +24,15 @@
 # SOFTWARE.
 from ish.resources import ImpulseObject
 
+
 class Subnet(ImpulseObject):
-	input_subnet = None# The subnet in CIDR notation
-	input_name = None # The name of this subnet
-	input_comment = None # A comment on the subnet (or NULL for no comment)
-	input_autogen = None # Autopopulate the IP addresses table (advanced use only)
-	input_dhcp = None # TRUE to allow this subnet for DHCP, FALSE for not
-	input_zone = None # DNS zone to associate with this subnet
-	input_owner = None # The owner of the subnet (or NULL for current user)
+	input_subnet = None  # The subnet in CIDR notation
+	input_name = None  # The name of this subnet
+	input_comment = None   # A comment on the subnet (or NULL for no comment)
+	input_autogen = None  # Autopopulate the IP addresses table (adv. use only)
+	input_dhcp = None  # TRUE to allow this subnet for DHCP, FALSE for not
+	input_zone = None  # DNS zone to associate with this subnet
+	input_owner = None  # The owner of the subnet (or NULL for current user)
 	removal_parameter = "input_subnet"
 
 	def __init__(self, subnet=None, name=None, comment=None, autogen=None,
@@ -44,15 +45,16 @@ class Subnet(ImpulseObject):
 		self.input_zone = zone
 		self.input_owner = owner
 
+
 class IPRange(ImpulseObject):
-	input_name = None # The name of the range
-	input_first_ip = None # The first IP address of the range
-	input_last_ip = None # The last IP address of the range
-	input_subnet = None # The subnet containing the range
-	input_use = None # A use (see documentation for uses)
-	input_class = None # The DHCP class of the range. 
+	input_name = None  # The name of the range
+	input_first_ip = None  # The first IP address of the range
+	input_last_ip = None  # The last IP address of the range
+	input_subnet = None  # The subnet containing the range
+	input_use = None  # A use (see documentation for uses)
+	input_class = None  # The DHCP class of the range.
 		#NOTE: input_class of NULL will allow unknown clients to get a lease
-	input_comment = None # A comment on the range (or NULL for no comment)
+	input_comment = None  # A comment on the range (or NULL for no comment
 	removal_parameter = "input_name"
 
 	def __init__(self, name=None, first_ip=None, last_ip=None, subnet=None,
@@ -65,10 +67,11 @@ class IPRange(ImpulseObject):
 		self.input_class = inp_class
 		self.input_comment = comment
 
+
 class AddressRange(ImpulseObject):
-	input_first_ip = None # First address of the range
-	input_last_ip = None # Last address of the range
-	input_subnet = None # Subnet containign the range
+	input_first_ip = None  # First address of the range
+	input_last_ip = None  # Last address of the range
+	input_subnet = None  # Subnet containign the range
 
 	def __init__(self, first_ip=None, last_ip=None, subnet=None):
 		self.input_first_ip = first_ip

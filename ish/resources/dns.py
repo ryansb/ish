@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
-# Description: 
+# Description:
 #
 # Copyright (c) 2011 Ryan Brown ryansb@csh.rit.edu
 #
@@ -22,5 +22,3 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-

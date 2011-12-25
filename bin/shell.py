@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
-# Description: 
+# Description:
 #
 # Copyright (c) 2011 Ryan Brown ryansb@csh.rit.edu
 #
@@ -25,18 +25,21 @@
 
 
 import sys
-sys.path.insert(0,".")
+sys.path.insert(0, ".")
 from ish import auth
 from pkg_resources import resource_listdir
 
 OBJS = []
 current_user = None
 
+
 class Ls(object):
 	def __repr__(self):
 		return self.__call__()
+
 	def __call__(self):
 		return "\n".join(OBJS)
+
 
 class Auth(object):
 	def __repr__(self):
@@ -65,4 +68,8 @@ if __name__ == "__main__":
 	local["ls"] = Ls()
 	local["auth"] = Auth()
 	local["system"] = System
-	code.interact(banner="Impulse Shell\nUse Ctrl+D to exit\nls prints all loaded classes\nauth attempts to authenticate against kerberos credentials", local=local)
+	welcome = """Impulse Shell
+Use Ctrl+D to exit
+ls prints all loaded classes
+auth attempts to authenticate against kerberos credentials"""
+	code.interact(banner=welcome, local=local)

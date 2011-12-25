@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
-# Description: 
+# Description:
 #
 # Copyright (c) 2011 Ryan Brown ryansb@csh.rit.edu
 #
@@ -26,6 +26,7 @@
 __version__ = '0.1'
 from ish.resources.user import User
 
+
 def auth():
 	import subprocess
 	from ish.resources import EnumAuth
@@ -34,7 +35,8 @@ def auth():
 	t = subprocess.call(['klist'], stdout=std)
 	exit_status = subprocess.call(['klist', '-s'])
 	if exit_status is not 0:
-		return (None, "No kerberos ticket found. Either exit and try running kinit, or use LDAP (not implemented yet)")
+		return (None, "No kerberos ticket found. Either exit and try running"
+				+ "kinit, or use LDAP (not implemented yet)")
 	else:
 		std.seek(0)
 		out_lines = std.read().split('\n')

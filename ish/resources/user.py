@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
-# Description: 
+# Description:
 #
 # Copyright (c) 2011 Ryan Brown ryansb@csh.rit.edu
 #
@@ -25,6 +25,7 @@
 
 from ish.resources import EnumAuth
 
+
 class User(object):
 	username = ""
 	password = ""
@@ -40,4 +41,3 @@ class User(object):
 
 	def auth_type(self):
 		return str(self.__auth__)
-
