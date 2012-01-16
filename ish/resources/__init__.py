@@ -85,8 +85,15 @@ class ImpulseObject(object):
 
 	def remove(self, debug=False):
 		#run this query on the db
-		query = self.removal_query % (self.__dict__[self.removal_parameter])
+		query = self.removal_query % (self.__dict__[self.pkey])
+		if not debug:
+			print query
 		self._conn.execute(query)
+
+	@classmethod
+	def find(pkey):
+		#TODO: Make a generalized way of finding a certain item
+		pass
 
 	def configure(self):
 		#Display prompts the user for required properties

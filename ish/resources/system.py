@@ -34,7 +34,7 @@ class System(ImpulseObject):
 	comment = None  # Comment on the system (or NULL for no comment)
 	required_properties = ('name', 'sys_type', 'os_name')
 	optional_properties = ('comment', )
-	removal_parameter = "name"  # What parameter does the deletion query require?
+	pkey = "name"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
 	creation_query = ("SELECT api.create_system('{name}', '{owner}',"
@@ -68,7 +68,7 @@ class Interface(ImpulseObject):
 	system_name = None  # Name of the system
 	mac = None  # Owning user (NULL for current authenticated user)
 	comment = None  # Comment on the system (or NULL for no comment)
-	removal_parameter = "mac"  # What parameter does the deletion query require?
+	pkey = "mac"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_interface('%s');"""
 	# Query that removes the object
 	creation_query = """SELECT api.create_interface('{name}', '{mac}', "
