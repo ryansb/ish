@@ -61,8 +61,6 @@ class System(ImpulseObject):
 		query = self.creation_query.format(name=self.name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
-		print query
-		return
 		return self._conn.execute(query)
 
 

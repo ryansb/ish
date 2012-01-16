@@ -23,10 +23,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from ish import ish_prompt
+from ish import get_username
 from ish import CONFIG_LOCATION
 
 
 class ConnectionSingleton(object):
+	_db_conn = None
 	def __init__(self):
 		super(ConnectionSingleton, self).__init__()
 
@@ -34,7 +36,8 @@ class ConnectionSingleton(object):
 	def db_conn(self):
 		if not self._db_conn:
 			from ConfigParser import ConfigParser
-			config = ConfigParser.read(CONFIG_LOCATION)
+			config = ConfigParser()
+			config.read(CONFIG_LOCATION)
 			self._db_conn = DBConnection(
 					config.get('DB', 'database'),
 					config.get('DB', 'user'),
@@ -44,13 +47,13 @@ class ConnectionSingleton(object):
 		return self._db_conn
 
 	def execute(self, query, results=False):
-		return self._db_conn.api_query(self, query, results)
+		return self.db_conn.api_query(query, results)
 
 
 class DBConnection(object):
-	def __init__(self, database, uname, passwd, host, port):
+	def __init__(self, db, uname, passwd, host, port):
 		import psycopg2
-		self.connection = psycopg2.connect(db=database, user=uname,
+		self.connection = psycopg2.connect(database=db, user=uname,
 				password=passwd, host=host, port=port)
 
 	def api_query(self, query, results=False):
@@ -59,10 +62,7 @@ class DBConnection(object):
 
 			#initialize our session in the database so we can use Impulse's
 			#create/remove functions, and let Impulse deal with who's an RTP, etc
-			fh = get_username()
-			fh.seek(0)
-			uname = fh.read().replace('\n', '')
-			cursor.execute("SELECT api.initialize('%s');" % uname)
+			cursor.execute("SELECT api.initialize('%s');" % get_username())
 
 			#Finally actually run our query
 			cursor.execute(query)
@@ -86,7 +86,6 @@ class ImpulseObject(object):
 	def remove(self, debug=False):
 		#run this query on the db
 		query = self.removal_query % (self.__dict__[self.removal_parameter])
-		print """Executing query "%s" """ % query
 		self._conn.execute(query)
 
 	def configure(self):
