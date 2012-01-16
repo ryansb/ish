@@ -24,6 +24,7 @@
 # SOFTWARE.
 
 __version__ = '0.1'
+CONFIG_LOCATION = "conf/ish.cfg"
 from ish.resources.user import User
 
 
@@ -48,3 +49,13 @@ def auth():
 				u = User(name, EnumAuth(1))
 				return (u, "Successfully authenticated")
 	return (u, "Could not authenticate.")
+
+def get_username():
+	#Find the username we're authenticated to Kerberos as
+	import subprocess
+	from tempfile import TemporaryFile
+	std = TemporaryFile()
+	proc = subprocess.Popen("""klist | grep "Default" | cut -d' ' -f3 | cut -d'@' -f1""", shell=True, stdout=subprocess.PIPE)
+	#subprocess.Popen("""klist | grep Default""", shell=True, stdout=std)
+	std = proc.communicate()[0]
+	return std.replace('\n', '')

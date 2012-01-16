@@ -23,6 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from ish.resources import ImpulseObject
+from ish import get_username
 
 
 class System(ImpulseObject):
@@ -31,39 +32,48 @@ class System(ImpulseObject):
 	sys_type = None  # Server, Desktop, Laptop, etc
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
+	required_properties = ('name', 'owner', 'sys_type', 'os_name', 'comment')
 	removal_parameter = "name"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
-	creation_query = "SELECT api.create_system('{name}', '{owner}',"
-	+ "'{sys_type}', '{os_name}', '{comment}');"  # Query to create an object
+	creation_query = ("SELECT api.create_system('{name}', '{owner}',"
+	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
-	def __init__(self, user, dbcursor, name=None, sys_type=None, os=None,
-			comment=None):
-		self.user = user
-		self.cursor = dbcursor
+	def __init__(self, name='', sys_type='', os='', comment=''):
 		self.name = name
 		self.sys_type = sys_type
 		self.os_name = os
 		self.comment = comment
-		ImpulseObject.__init__(self, user, dbcursor)
+		self.owner = get_username()
+		ImpulseObject.__init__(self)
 		if name and sys_type and os:
 			self.create()
 
-	def create(self):
+	def put(self):
+		#maybe dynamically figure out "required" stuff and enforce it, would be
+		#nice and generalizable
+		#for k, v in self.__dict__:
+			#if not k in self.required_properties:
+				#break
+			#if k == "comment":
+				#self.comment = "NULL"
+			#if not v:
+				#print "Missing parameter %s" % k
+				#return False
+
 		if not (self.name and self.owner and self.sys_type and self.os_name):
-			print ("Missing Parameter.\nSystem name: %s\nOwner: %s\n"
-					+ "System type: %s\nOS: %s"
+			print (("Missing Parameter.\nSystem name: %s\nOwner: %s\n"
+					+ "System type: %s\nOS: %s")
 					% (self.name, self.owner, self.sys_type, self.os_name))
-			return False
-		if not self.cursor:
-			print "No database connection"
 			return False
 		if not self.comment:
 			self.comment = "NULL"
 		query = self.creation_query.format(name=self.name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
-		return ImpulseObject.create(self, query)
+		print self.query
+		return
+		return self._conn.execute(query)
 
 
 class Interface(ImpulseObject):

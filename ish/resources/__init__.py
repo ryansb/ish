@@ -22,63 +22,45 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from ish import CONFIG_LOCATION
 
 
-class ImpulseObject(object):
-	removal_parameter = ""
-	creation_query = ""
-	removal_query = ""
-	user = None
-	cursor = None
+class ConnectionSingleton(object):
+	def __init__(self):
+		super(ConnectionSingleton, self).__init__()
 
-	def __init__(self, user, dbcursor):
-		self.user = user
-		self.cursor = dbcursor
+	@property
+	def db_conn(self):
+		if not self._db_conn:
+			from ConfigParser import ConfigParser
+			config = ConfigParser.read(CONFIG_LOCATION)
+			self._db_conn = DBConnection(
+					config.get('DB', 'database'),
+					config.get('DB', 'user'),
+					config.get('DB', 'password'),
+					config.get('DB', 'host'),
+					config.get('DB', 'port'))
+		return self._db_conn
 
-	def create(self, query):
-		print """Executing query "%s" """ % query
-		self.cursor.execute(query)
-		self.cursor.commit()
-
-	def remove(self):
-		#run this query on the db
-		query = self.removal_query % (self.__dict__[self.removal_parameter])
-		print """Executing query "%s" """ % query
-		self.cursor.execute(query)
-		self.cursor.commit()
-
-	def put(self, debug=False):
-		"""
-		Description: Saves this object to the database in its current state
-		:param debug: If debug is on, will return the exact query that was run
-		:type bool:
-
-		:rtype: bool:
-		:return: Returns True if save was successfull, false otherwise
-		"""
-		raise NotImplementedError
+	def execute(self, query, results=False):
+		return self._db_conn.api_query(self, query, results)
 
 
 class DBConnection(object):
-	def __init__(self, db='impulse', uname=None, passwd=None, host=None,
-			port="5432"):
+	def __init__(self, database, uname, passwd, host, port):
 		import psycopg2
-		self.connection = psycopg2.connect(db="impulse", user=uname,
-				password=passwd, host=host)
+		self.connection = psycopg2.connect(db=database, user=uname,
+				password=passwd, host=host, port=port)
 
 	def api_query(self, query, results=False):
 		try:
 			cursor = self.connection.cursor()
-			#Find the username we're authenticated to Kerberos as
-			import subprocess
-			from tempfile import TemporaryFile
-			std = TemporaryFile()
-			subprocess.Popen("""klist | grep "Default" | cut -d' ' -f3 | cut -d'@' -f1""", shell=True, stdout=std)
-			std.seek(0)
-			uname = std.read()
 
 			#initialize our session in the database so we can use Impulse's
 			#create/remove functions, and let Impulse deal with who's an RTP, etc
+			fh = get_username()
+			fh.seek(0)
+			uname = fh.read().replace('\n', '')
 			cursor.execute("SELECT api.initialize('%s');" % uname)
 
 			#Finally actually run our query
@@ -92,3 +74,16 @@ class DBConnection(object):
 			raise e
 		if results:
 			return cursor.fetchall()
+
+
+class ImpulseObject(object):
+	_conn = ConnectionSingleton()
+
+	def __init__(self):
+		super(ImpulseObject, self).__init__()
+
+	def remove(self, debug=False):
+		#run this query on the db
+		query = self.removal_query % (self.__dict__[self.removal_parameter])
+		print """Executing query "%s" """ % query
+		self._conn.execute(query)

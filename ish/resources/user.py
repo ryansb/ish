@@ -23,13 +23,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ish.resources import EnumAuth
-
 
 class User(object):
 	username = ""
 	password = ""
-	__auth__ = EnumAuth(2)
 
 	def __init__(self, username, auth, password=None):
 		self.username = username
