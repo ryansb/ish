@@ -32,7 +32,8 @@ class System(ImpulseObject):
 	sys_type = None  # Server, Desktop, Laptop, etc
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
-	required_properties = ('name', 'owner', 'sys_type', 'os_name', 'comment')
+	required_properties = ('name', 'sys_type', 'os_name')
+	optional_properties = ('comment', )
 	removal_parameter = "name"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
@@ -50,17 +51,6 @@ class System(ImpulseObject):
 			self.create()
 
 	def put(self):
-		#maybe dynamically figure out "required" stuff and enforce it, would be
-		#nice and generalizable
-		#for k, v in self.__dict__:
-			#if not k in self.required_properties:
-				#break
-			#if k == "comment":
-				#self.comment = "NULL"
-			#if not v:
-				#print "Missing parameter %s" % k
-				#return False
-
 		if not (self.name and self.owner and self.sys_type and self.os_name):
 			print (("Missing Parameter.\nSystem name: %s\nOwner: %s\n"
 					+ "System type: %s\nOS: %s")
@@ -71,7 +61,7 @@ class System(ImpulseObject):
 		query = self.creation_query.format(name=self.name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
-		print self.query
+		print query
 		return
 		return self._conn.execute(query)
 

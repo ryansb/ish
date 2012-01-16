@@ -22,6 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from ish import ish_prompt
 from ish import CONFIG_LOCATION
 
 
@@ -87,3 +88,14 @@ class ImpulseObject(object):
 		query = self.removal_query % (self.__dict__[self.removal_parameter])
 		print """Executing query "%s" """ % query
 		self._conn.execute(query)
+
+	def configure(self):
+		#Display prompts the user for required properties
+		for prop in self.required_properties:
+			self.__dict__[prop] = ish_prompt("Value for %s: " % prop,
+					required=True)
+
+		#Display prompts the user for optional properties
+		for prop in self.optional_properties:
+			self.__dict__[prop] = ish_prompt("Value for optional property %s: "
+					% prop, required=False)

@@ -25,13 +25,13 @@
 
 __version__ = '0.1'
 CONFIG_LOCATION = "conf/ish.cfg"
-from ish.resources.user import User
 
 
 def auth():
 	import subprocess
 	from ish.resources import EnumAuth
 	from tempfile import TemporaryFile
+	from ish.resources.user import User
 	std = TemporaryFile()
 	t = subprocess.call(['klist'], stdout=std)
 	exit_status = subprocess.call(['klist', '-s'])
@@ -59,3 +59,11 @@ def get_username():
 	#subprocess.Popen("""klist | grep Default""", shell=True, stdout=std)
 	std = proc.communicate()[0]
 	return std.replace('\n', '')
+
+def ish_prompt(p, required=True):
+	val = None
+	while not val:
+		val = raw_input(p)
+		if not required:
+			break
+	return val
