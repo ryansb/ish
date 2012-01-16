@@ -24,29 +24,6 @@
 # SOFTWARE.
 
 
-class EnumAuth(object):
-	Admin = 0
-	User = 1
-	NoAuth = 2
-	Test = 3
-
-	def __init__(self, Type):
-		self.value = Type
-
-	def __str__(self):
-		if self.value == EnumAuth.Admin:
-			return 'Admin'
-		if self.value == EnumAuth.User:
-			return 'User'
-		if self.value == EnumAuth.NoAuth:
-			return 'NoAuth'
-		if self.value == EnumAuth.Test:
-			return 'Test'
-
-	def __eq__(self, y):
-		return self.value == y.value
-
-
 class ImpulseObject(object):
 	removal_parameter = ""
 	creation_query = ""
@@ -92,11 +69,26 @@ class DBConnection(object):
 	def api_query(self, query, results=False):
 		try:
 			cursor = self.connection.cursor()
+			#Find the username we're authenticated to Kerberos as
+			import subprocess
+			from tempfile import TemporaryFile
+			std = TemporaryFile()
+			subprocess.Popen("""klist | grep "Default" | cut -d' ' -f3 | cut -d'@' -f1""", shell=True, stdout=std)
+			std.seek(0)
+			uname = std.read()
+
+			#initialize our session in the database so we can use Impulse's
+			#create/remove functions, and let Impulse deal with who's an RTP, etc
+			cursor.execute("SELECT api.initialize('%s');" % uname)
+
+			#Finally actually run our query
 			cursor.execute(query)
 			cursor.close()
+
+			#commit the changes we made
 			self.connection.commit()
+
 		except Exception, e:
 			raise e
 		if results:
 			return cursor.fetchall()
-		return True
