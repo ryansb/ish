@@ -34,8 +34,8 @@ class System(ImpulseObject):
 	removal_parameter = "name"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
-	creation_query = """SELECT api.create_system('{name}', '{owner}',"
-			+ "'{sys_type}', '{os_name}', '{comment}');"""  # Query to create an object
+	creation_query = "SELECT api.create_system('{name}', '{owner}',"
+	+ "'{sys_type}', '{os_name}', '{comment}');"  # Query to create an object
 
 	def __init__(self, user, dbcursor, name=None, sys_type=None, os=None,
 			comment=None):

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding; utf-8 -*-
 # Author: Ryan Brown
-# Description: #
+# Description:
+#
 # Copyright (c) 2011 Ryan Brown ryansb@csh.rit.edu
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -81,14 +82,21 @@ class ImpulseObject(object):
 		raise NotImplementedError
 
 
-class Singleton(type):
-	_instances = {}
+class DBConnection(object):
+	def __init__(self, db='impulse', uname=None, passwd=None, host=None,
+			port="5432"):
+		import psycopg2
+		self.connection = psycopg2.connect(db="impulse", user=uname,
+				password=passwd, host=host)
 
-	def __call__(cls, *args, **kwargs):
-		if cls not in cls._instances:
-			cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-		return cls._instances[cls]
-
-
-class DBConn(object):
-	__metaclass__ = Singleton
+	def api_query(self, query, results=False):
+		try:
+			cursor = self.connection.cursor()
+			cursor.execute(query)
+			cursor.close()
+			self.connection.commit()
+		except Exception, e:
+			raise e
+		if results:
+			return cursor.fetchall()
+		return True
