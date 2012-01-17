@@ -43,8 +43,7 @@ class Ls(object):
 
 class Auth(object):
 	def __repr__(self):
-		(user, msg) = self.__call__()
-		return msg
+		return self.__call__()
 
 	def __call__(self):
 		return auth()

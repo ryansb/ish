@@ -29,9 +29,7 @@ CONFIG_LOCATION = "conf/ish.cfg"
 
 def auth():
 	import subprocess
-	from ish.resources import EnumAuth
 	from tempfile import TemporaryFile
-	from ish.resources.user import User
 	std = TemporaryFile()
 	t = subprocess.call(['klist'], stdout=std)
 	exit_status = subprocess.call(['klist', '-s'])
@@ -45,10 +43,9 @@ def auth():
 			if line.startswith('Default'):
 				(name, domain) = line.split(' ')[2].split('@')
 				if not domain.lower() == "csh.rit.edu":
-					return (None, "not in domain csh.rit.edu")
-				u = User(name, EnumAuth(1))
-				return (u, "Successfully authenticated")
-	return (u, "Could not authenticate.")
+					return "not in domain csh.rit.edu"
+				return "Successfully authenticated"
+	return "Could not authenticate."
 
 def get_username():
 	#Find the username we're authenticated to Kerberos as

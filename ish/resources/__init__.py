@@ -66,6 +66,8 @@ class DBConnection(object):
 
 			#Finally actually run our query
 			cursor.execute(query)
+			if results:
+				ret = cursor.fetchall()
 			cursor.close()
 
 			#commit the changes we made
@@ -74,7 +76,7 @@ class DBConnection(object):
 		except Exception, e:
 			raise e
 		if results:
-			return cursor.fetchall()
+			return ret
 
 
 class ImpulseObject(object):

@@ -34,6 +34,7 @@ class System(ImpulseObject):
 	comment = None  # Comment on the system (or NULL for no comment)
 	required_properties = ('name', 'sys_type', 'os_name')
 	optional_properties = ('comment', )
+	_constraints = None
 	pkey = "name"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
@@ -46,6 +47,15 @@ class System(ImpulseObject):
 		self.os_name = os
 		self.comment = comment
 		self.owner = get_username()
+		self._constraints = {
+				#This line grabs all the constraints on the system type and stores
+				#them as a tuple, so we can check them later with:
+				#for k, v in self._constraints.items():
+				#	if k in self.__dict__.keys()
+				#		if not self.__dict__[k] in self._constraints[k]:
+				#			raise "Value not within constraints"
+				"sys_type": reduce(lambda a,b: a+b , self._conn.execute("SELECT type FROM systems.device_types;", results=True))
+				}
 		ImpulseObject.__init__(self)
 		if name and sys_type and os:
 			self.create()
