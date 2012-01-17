@@ -47,8 +47,29 @@ def auth():
 				return "Successfully authenticated"
 	return "Could not authenticate."
 
+def check_auth():
+	import subprocess
+	from tempfile import TemporaryFile
+	std = TemporaryFile()
+	t = subprocess.call(['klist'], stdout=std)
+	exit_status = subprocess.call(['klist', '-s'])
+	if exit_status is not 0:
+		return False
+	else:
+		std.seek(0)
+		out_lines = std.read().split('\n')
+		for line in out_lines:
+			if line.startswith('Default'):
+				(name, domain) = line.split(' ')[2].split('@')
+				if not domain.lower() == "csh.rit.edu":
+					return False
+				return True
+	return False
+
 def get_username():
 	#Find the username we're authenticated to Kerberos as
+	if not check_auth():
+		raise "Not logged in. Please run kinit and try again"
 	import subprocess
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
