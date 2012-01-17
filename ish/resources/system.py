@@ -54,7 +54,8 @@ class System(ImpulseObject):
 				#	if k in self.__dict__.keys()
 				#		if not self.__dict__[k] in self._constraints[k]:
 				#			raise "Value not within constraints"
-				"sys_type": reduce(lambda a,b: a+b , self._conn.execute("SELECT type FROM systems.device_types;", results=True))
+				"sys_type": reduce(lambda a,b: a+b , self._conn.execute("SELECT type FROM systems.device_types;", results=True)),
+				"os_name": reduce(lambda a,b: a+b , self._conn.execute("SELECT name FROM systems.os;", results=True)),
 				}
 		ImpulseObject.__init__(self)
 		if name and sys_type and os:

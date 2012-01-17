@@ -69,7 +69,7 @@ def check_auth():
 def get_username():
 	#Find the username we're authenticated to Kerberos as
 	if not check_auth():
-		raise "Not logged in. Please run kinit and try again"
+		raise Exception("Not logged in. Please run kinit and try again")
 	import subprocess
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
