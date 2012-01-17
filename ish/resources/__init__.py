@@ -29,6 +29,7 @@ from ish import CONFIG_LOCATION
 
 class ConnectionSingleton(object):
 	_db_conn = None
+
 	def __init__(self):
 		super(ConnectionSingleton, self).__init__()
 
@@ -107,3 +108,11 @@ class ImpulseObject(object):
 		for prop in self.optional_properties:
 			self.__dict__[prop] = ish_prompt("Value for optional property %s: "
 					% prop, required=False)
+
+	def enforce_constraints(self):
+		for k, v in self._constraints.items():
+			if k in self.__dict__.keys():
+				if not (self.__dict__[k] and self.__dict__[k]
+						in self._constraints[k]):
+					raise Exception("Value '%s' is not within constraints for'%s'"
+							% (self.__dict__[k], k))

@@ -41,7 +41,7 @@ class System(ImpulseObject):
 	creation_query = ("SELECT api.create_system('{name}', '{owner}',"
 	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
-	def __init__(self, name='', sys_type='', os='', comment=''):
+	def __init__(self, name=None, sys_type=None, os=None, comment=None):
 		self.name = name
 		self.sys_type = sys_type
 		self.os_name = os
@@ -54,8 +54,10 @@ class System(ImpulseObject):
 				#	if k in self.__dict__.keys()
 				#		if not self.__dict__[k] in self._constraints[k]:
 				#			raise "Value not within constraints"
-				"sys_type": reduce(lambda a,b: a+b , self._conn.execute("SELECT type FROM systems.device_types;", results=True)),
-				"os_name": reduce(lambda a,b: a+b , self._conn.execute("SELECT name FROM systems.os;", results=True)),
+				"sys_type": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT type FROM systems.device_types;", results=True)),
+				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT name FROM systems.os;", results=True)),
 				}
 		ImpulseObject.__init__(self)
 		if name and sys_type and os:
