@@ -47,6 +47,7 @@ def auth():
 				return "Successfully authenticated"
 	return "Could not authenticate."
 
+
 def check_auth():
 	import subprocess
 	from tempfile import TemporaryFile
@@ -66,6 +67,7 @@ def check_auth():
 				return True
 	return False
 
+
 def get_username():
 	#Find the username we're authenticated to Kerberos as
 	if not check_auth():
@@ -73,10 +75,12 @@ def get_username():
 	import subprocess
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
-	proc = subprocess.Popen("""klist | grep "Default" | cut -d' ' -f3 | cut -d'@' -f1""", shell=True, stdout=subprocess.PIPE)
+	proc = subprocess.Popen("""klist | grep "Default" | cut -d' ' -f3 |"""
+			+ """ cut -d'@' -f1""", shell=True, stdout=subprocess.PIPE)
 	#subprocess.Popen("""klist | grep Default""", shell=True, stdout=std)
 	std = proc.communicate()[0]
 	return std.replace('\n', '')
+
 
 def ish_prompt(p, required=True):
 	val = None

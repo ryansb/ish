@@ -89,7 +89,7 @@ class ImpulseObject(object):
 	def remove(self, debug=False):
 		#run this query on the db
 		query = self.removal_query % (self.__dict__[self.pkey])
-		if not debug:
+		if debug:
 			print query
 		self._conn.execute(query)
 
