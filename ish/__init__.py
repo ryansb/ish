@@ -29,7 +29,8 @@ CONFIG_LOCATION = "conf/ish.cfg"
 
 def auth_info():
 	"""
-	Description: Get the information necessary to determine whether a user is properly logged in
+	Description: Get the information necessary to determine whether a user is
+			properly logged in
 
 	:rtype: tuple:
 	:return: A tuple of the exit code of 'klist -s' and of the output of 'klist'
@@ -38,7 +39,7 @@ def auth_info():
 	import subprocess
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
-	t = subprocess.call(['klist'], stdout=std)
+	subprocess.call(['klist'], stdout=std)
 	exit_status = subprocess.call(['klist', '-s'])
 	std.seek(0)
 	out_lines = std.read().split('\n')
@@ -52,7 +53,7 @@ def auth_info():
 
 
 def check_auth():
-	auth= auth_info()
+	auth = auth_info()
 	if auth['code'] is not 0:
 		return False
 	if not auth['domain'] == "csh.rit.edu":
@@ -76,10 +77,26 @@ def get_username():
 	return auth['user']
 
 
-def ish_prompt(p, required=True):
+def ish_prompt(p, required=True, constraints=None):
 	val = None
 	while not val:
-		val = raw_input(p)
+		if not constraints:
+			val = raw_input(p + ": ")
+		else:
+			#create a dictionary with numbers as keys, the constraints as values
+			options = dict(zip(range(len(constraints)), constraints))
+			print options
+			#use a lambda to make options formatted like:
+			#   [0]:   this
+			#   [1]:   that
+			#   [2]:   other
+			prompt = ("From choices:\n" + ''.join(map(lambda (k, v):
+						"   [%s];   %s\n" % (k, v), options.items())) + p + ": ")
+			val = raw_input(prompt)
+			if not int(val) in options.keys():
+				val = None
+			else:
+				val = options[int(val)]
 		if not required:
 			break
 	return val

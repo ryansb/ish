@@ -101,12 +101,12 @@ class ImpulseObject(object):
 	def configure(self):
 		#Display prompts the user for required properties
 		for prop in self.required_properties:
-			self.__dict__[prop] = ish_prompt("Value for %s: " % prop,
+			self.__dict__[prop] = ish_prompt("Value for %s" % prop,
 					required=True)
 
 		#Display prompts the user for optional properties
 		for prop in self.optional_properties:
-			self.__dict__[prop] = ish_prompt("Value for optional property %s: "
+			self.__dict__[prop] = ish_prompt("Value for optional property %s"
 					% prop, required=False)
 
 	def enforce_constraints(self):
