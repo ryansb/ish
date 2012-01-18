@@ -27,59 +27,53 @@ __version__ = '0.1'
 CONFIG_LOCATION = "conf/ish.cfg"
 
 
-def auth():
+def auth_info():
+	"""
+	Description: Get the information necessary to determine whether a user is properly logged in
+
+	:rtype: tuple:
+	:return: A tuple of the exit code of 'klist -s' and of the output of 'klist'
+	"""
+
 	import subprocess
 	from tempfile import TemporaryFile
 	std = TemporaryFile()
 	t = subprocess.call(['klist'], stdout=std)
 	exit_status = subprocess.call(['klist', '-s'])
-	if exit_status is not 0:
-		return (None, "No kerberos ticket found. Either exit and try running"
-				+ "kinit, or use LDAP (not implemented yet)")
-	else:
-		std.seek(0)
-		out_lines = std.read().split('\n')
-		for line in out_lines:
-			if line.startswith('Default'):
-				(name, domain) = line.split(' ')[2].split('@')
-				if not domain.lower() == "csh.rit.edu":
-					return "not in domain csh.rit.edu"
-				return "Successfully authenticated"
-	return "Could not authenticate."
+	std.seek(0)
+	out_lines = std.read().split('\n')
+	std.close()
+	ret = {}
+	ret['code'] = exit_status
+	for line in out_lines:
+		if line.startswith('Default'):
+			(ret['user'], ret['domain']) = line.lower().split(' ')[2].split('@')
+	return ret
 
 
 def check_auth():
-	import subprocess
-	from tempfile import TemporaryFile
-	std = TemporaryFile()
-	t = subprocess.call(['klist'], stdout=std)
-	exit_status = subprocess.call(['klist', '-s'])
-	if exit_status is not 0:
+	auth= auth_info()
+	if auth['code'] is not 0:
 		return False
-	else:
-		std.seek(0)
-		out_lines = std.read().split('\n')
-		for line in out_lines:
-			if line.startswith('Default'):
-				(name, domain) = line.split(' ')[2].split('@')
-				if not domain.lower() == "csh.rit.edu":
-					return False
-				return True
-	return False
+	if not auth['domain'] == "csh.rit.edu":
+		return False
+	return True
+
+
+def auth():
+	auth = auth_info()
+	if auth['code'] is not 0:
+		return "Ticket expired or invalid. Exit and run kinit"
+	if not auth['domain'] == "csh.rit.edu":
+		return "Not in domain 'csh.rit.edu'"
+	return "Successfully authenticated"
 
 
 def get_username():
-	#Find the username we're authenticated to Kerberos as
-	if not check_auth():
-		raise Exception("Not logged in. Please run kinit and try again")
-	import subprocess
-	from tempfile import TemporaryFile
-	std = TemporaryFile()
-	proc = subprocess.Popen("""klist | grep "Default" | cut -d' ' -f3 |"""
-			+ """ cut -d'@' -f1""", shell=True, stdout=subprocess.PIPE)
-	#subprocess.Popen("""klist | grep Default""", shell=True, stdout=std)
-	std = proc.communicate()[0]
-	return std.replace('\n', '')
+	auth = auth_info()
+	if auth['code'] is not 0:
+		return False
+	return auth['user']
 
 
 def ish_prompt(p, required=True):
