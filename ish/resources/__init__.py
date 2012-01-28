@@ -48,13 +48,18 @@ class ConnectionSingleton(object):
 		return self._db_conn
 
 	def execute(self, query, results=False):
+		try:
+			return self.db_conn.api_query(query, results)
+		except Exception, error:
+			self._db_conn = None
 		return self.db_conn.api_query(query, results)
 
 
+
 class DBConnection(object):
-	def __init__(self, db, uname, passwd, host, port):
+	def __init__(self, dbname, uname, passwd, host, port):
 		import psycopg2
-		self.connection = psycopg2.connect(database=db, user=uname,
+		self.connection = psycopg2.connect(database=dbname, user=uname,
 				password=passwd, host=host, port=port)
 
 	def api_query(self, query, results=False):
@@ -74,8 +79,8 @@ class DBConnection(object):
 			#commit the changes we made
 			self.connection.commit()
 
-		except Exception, e:
-			raise e
+		except Exception, error:
+			raise error
 		if results:
 			return ret
 
@@ -94,9 +99,30 @@ class ImpulseObject(object):
 		self._conn.execute(query)
 
 	@classmethod
-	def find(pkey):
-		#TODO: Make a generalized way of finding a certain item
-		pass
+	def find(cls, pkey):
+		if isinstance(cls, ImpulseObject):
+			raise NotImplementedError("Can't run this on a generic" +
+					" ImpulseObject.")
+		column_query = ("""select * from information_schema.columns""" +
+				""" where table_name = '%s'""")
+		# Get all the columns in the specified table
+		column_result = cls._conn.execute(column_query % cls.table_name, results=True)
+		if not column_result:
+			raise Exception("Cannot find table %s" % cls.table_name)
+		# pull only the column names using list comprehension
+		columns = [res[3] for res in column_result]
+
+		obj_query = """select * from %s.%s where %s = '%s'"""
+		obj = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name,
+				cls.pkey, pkey), results=True)
+		if not obj:
+			raise Exception("Cannot find object %s with key %s" %
+					(pkey, cls.pkey))
+
+		result = cls()
+		for col, val in zip(columns, obj[0]):
+			result.__dict__[col] = val
+		return result
 
 	def configure(self):
 		#Display prompts the user for required properties
@@ -110,9 +136,9 @@ class ImpulseObject(object):
 					% prop, required=False)
 
 	def enforce_constraints(self):
-		for k, v in self._constraints.items():
-			if k in self.__dict__.keys():
-				if not (self.__dict__[k] and self.__dict__[k]
-						in self._constraints[k]):
+		for key in self._constraints.keys():
+			if key in self.__dict__.keys():
+				if not (self.__dict__[key] and self.__dict__[key]
+						in self._constraints[key]):
 					raise Exception("Value '%s' is not within constraints for'%s'"
-							% (self.__dict__[k], k))
+							% (self.__dict__[key], key))

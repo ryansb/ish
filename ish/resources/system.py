@@ -27,24 +27,26 @@ from ish import get_username
 
 
 class System(ImpulseObject):
-	name = None  # Name of the system
+	table_name = 'systems'
+	schema_name = 'systems'
+	system_name = None  # Name of the system
 	owner = None  # Owning user (NULL for current authenticated user)
 	sys_type = None  # Server, Desktop, Laptop, etc
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
-	required_properties = ('name', 'sys_type', 'os_name')
+	required_properties = ('system_name', 'sys_type', 'os_name')
 	optional_properties = ('comment', )
 	_constraints = None
-	pkey = "name"  # What parameter does the deletion query require?
+	pkey = "system_name"  # What parameter does the deletion query require?
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
-	creation_query = ("SELECT api.create_system('{name}', '{owner}',"
+	creation_query = ("SELECT api.create_system('{system_name}', '{owner}',"
 	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
-	def __init__(self, name=None, sys_type=None, os=None, comment=None):
-		self.name = name
+	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
+		self.system_name = name
 		self.sys_type = sys_type
-		self.os_name = os
+		self.os_name = osname
 		self.comment = comment
 		self.owner = get_username()
 		self._constraints = {
@@ -60,18 +62,18 @@ class System(ImpulseObject):
 						"SELECT name FROM systems.os;", results=True)),
 				}
 		ImpulseObject.__init__(self)
-		if name and sys_type and os:
+		if name and sys_type and osname:
 			self.create()
 
 	def put(self):
-		if not (self.name and self.owner and self.sys_type and self.os_name):
+		if not (self.system_name and self.owner and self.sys_type and self.os_name):
 			print (("Missing Parameter.\nSystem name: %s\nOwner: %s\n"
 					+ "System type: %s\nOS: %s")
-					% (self.name, self.owner, self.sys_type, self.os_name))
+					% (self.system_name, self.owner, self.sys_type, self.os_name))
 			return False
 		if not self.comment:
 			self.comment = "NULL"
-		query = self.creation_query.format(name=self.name,
+		query = self.creation_query.format(name=self.system_name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
 		return self._conn.execute(query)
