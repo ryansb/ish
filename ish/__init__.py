@@ -100,7 +100,13 @@ def ish_prompt(p, required=True, constraints=None):
 			#   [2]:   other
 			prompt = ("From choices:\n" + ''.join(map(lambda (k, v):
 					"   [%s];   %s\n" % (k, v), options.items())) + p + ": ")
-			val = int(raw_input(prompt))
+			try:
+				print required
+				val = int(raw_input(prompt))
+			except ValueError:
+				if not required:
+					break
+				continue
 			if not val < len(options.values()):
 				val = None
 			elif len(constraints) <= 30:

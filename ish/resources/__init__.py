@@ -209,10 +209,10 @@ class ImpulseObject(object):
 		for prop in self.optional_properties:
 			if prop in self._constraints:
 				self.__dict__[prop] = ish_prompt("Value for optional property %s" %
-						prop, required=True, constraints=self._constraints[prop])
+						prop, required=False, constraints=self._constraints[prop])
 			else:
 				self.__dict__[prop] = ish_prompt("Value for optional property %s" %
-						prop, required=True)
+						prop, required=False)
 
 	def enforce_constraints(self):
 		for key in list(set(self._constraints.keys()) &

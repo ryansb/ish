@@ -52,6 +52,16 @@ class System(ImpulseObject):
 		self._interfaces = Interface.search(system_name=self.system_name)
 		return self._interfaces
 
+	@interfaces.setter
+	def interfaces(self, value):
+		if not isinstance(value, list):
+			value = [value, ]
+		if self._interfaces:
+			self._interfaces.extend(value)
+		else:
+			self.interfaces
+			self._interfaces.extend(value)
+
 	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
 		self.system_name = name
 		self.sys_type = sys_type
