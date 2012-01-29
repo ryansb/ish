@@ -103,7 +103,6 @@ class ImmutabilityMeta(type):
 		return type.__delattr__(cls, name)
 
 
-
 class ImpulseObject(object):
 	_conn = ConnectionSingleton()
 	__metaclass__ = ImmutabilityMeta
@@ -120,6 +119,8 @@ class ImpulseObject(object):
 
 	@classmethod
 	def find(cls, pkey):
+		"""Return a single object based on the primary key for the objects in
+		that table"""
 		if isinstance(cls, ImpulseObject):
 			raise NotImplementedError("Can't run this on a generic" +
 					" ImpulseObject.")
@@ -143,6 +144,44 @@ class ImpulseObject(object):
 		for col, val in zip(columns, obj[0]):
 			result.__dict__[col] = val
 		return result
+
+	@classmethod
+	def search(cls, **kwargs):
+		"""Return a list objects that match parameters that aren't primary
+		keys
+
+		For example: object.search(owner=some1, type=atype)
+		"""
+		if len(kwargs.items()) < 1:
+			raise Exception("This function requires search parameters")
+		if isinstance(cls, ImpulseObject):
+			raise NotImplementedError("Can't run this on a generic" +
+					" ImpulseObject.")
+		column_query = ("""select * from information_schema.columns""" +
+				""" where table_name = '%s'""")
+		# Get all the columns in the specified table
+		column_result = cls._conn.execute(column_query % cls.table_name, results=True)
+		if not column_result:
+			raise Exception("Cannot find table %s" % cls.table_name)
+		# pull only the column names using list comprehension
+		columns = [res[3] for res in column_result]
+
+		obj_query = """select * from %s.%s where %s = '%s' """
+		additional = ''
+		for key, val in kwargs.items()[1:]:
+			additional += "and %s = '%s' " % (key, val)
+		additional += ';'
+		res = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name, kwargs.items()[0][0], kwargs.items()[0][1]) + additional, results=True)
+		if not res:
+			return None
+
+		results = []
+		for item in res:
+			obj = cls()
+			for col, val in zip(columns, item):
+				obj.__dict__[col] = val
+			results.append(obj)
+		return results
 
 	def configure(self):
 		#Display prompts the user for required properties

@@ -22,26 +22,28 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from ish.resources import ImpulseObject
+from ish.resources import ImpulseObject, ImmutabilityMeta
 from ish import get_username
 
 
 class System(ImpulseObject):
+	__metaclass__ = ImmutabilityMeta
+	pkey = "system_name"  # What parameter does the deletion query require?
 	table_name = 'systems'
 	schema_name = 'systems'
+	required_properties = ('system_name', 'sys_type', 'os_name')
+	optional_properties = ('comment', )
+	removal_query = """SELECT api.remove_system('%s');"""
+	# Query to remove the object
+	creation_query = ("SELECT api.create_system('{system_name}', '{owner}',"
+	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
+
 	system_name = None  # Name of the system
 	owner = None  # Owning user (NULL for current authenticated user)
 	sys_type = None  # Server, Desktop, Laptop, etc
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
-	required_properties = ('system_name', 'sys_type', 'os_name')
-	optional_properties = ('comment', )
 	_constraints = None
-	pkey = "system_name"  # What parameter does the deletion query require?
-	removal_query = """SELECT api.remove_system('%s');"""
-	# Query to remove the object
-	creation_query = ("SELECT api.create_system('{system_name}', '{owner}',"
-	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
 	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
 		self.system_name = name
