@@ -156,9 +156,8 @@ class ImpulseObject(object):
 					% prop, required=False)
 
 	def enforce_constraints(self):
-		for key in self._constraints.keys():
-			if key in self.__dict__.keys():
-				if not (self.__dict__[key] and self.__dict__[key]
-						in self._constraints[key]):
-					raise Exception("Value '%s' is not within constraints for'%s'"
-							% (self.__dict__[key], key))
+		for key in list(set(self._constraints.keys()) &
+				set(self.__dict__.keys())):
+			if self.__dict__[key] not in self._constraints[key]:
+				raise ValueError("Value '%s' is not within constraints for'%s'" %
+						(self.__dict__[key], key))
