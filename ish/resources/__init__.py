@@ -58,11 +58,20 @@ class ConnectionSingleton(object):
 class DBConnection(object):
 	def __init__(self, dbname, uname, passwd, host, port):
 		import psycopg2
+		self.dbname = dbname
+		self.uname = uname
+		self.passwd = passwd
+		self.host = host
+		self.port = port
 		self.connection = psycopg2.connect(database=dbname, user=uname,
 				password=passwd, host=host, port=port)
 
 	def api_query(self, query, results=False):
 		try:
+			if self.connection.closed:
+				import psycopg2
+				self.connection = psycopg2.connect(database=self.dbname,
+						user=self.uname, password=self.passwd, host=self.host, port=self.port)
 			cursor = self.connection.cursor()
 
 			#initialize our session in the database so we can use Impulse's
@@ -77,6 +86,7 @@ class DBConnection(object):
 
 			#commit the changes we made
 			self.connection.commit()
+			self.connection.close()
 
 		except Exception, error:
 			raise error
@@ -127,15 +137,17 @@ class ImpulseObject(object):
 		column_query = ("""select * from information_schema.columns""" +
 				""" where table_name = '%s'""")
 		# Get all the columns in the specified table
-		column_result = cls._conn.execute(column_query % cls.table_name, results=True)
+		column_result = cls._conn.execute(column_query % cls.table_name,
+				results=True)
 		if not column_result:
 			raise Exception("Cannot find table %s" % cls.table_name)
 		# pull only the column names using list comprehension
 		columns = [res[3] for res in column_result]
 
 		obj_query = """select * from %s.%s where %s = '%s'"""
-		obj = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name,
-				cls.pkey, pkey), results=True)
+		print obj_query % (cls.schema_name, cls.table_name, cls.pkey, pkey)
+		obj = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name, cls.pkey, pkey), results=True)
+		print obj
 		if not obj:
 			raise Exception("Cannot find object %s with key %s" %
 					(pkey, cls.pkey))
@@ -160,7 +172,8 @@ class ImpulseObject(object):
 		column_query = ("""select * from information_schema.columns""" +
 				""" where table_name = '%s'""")
 		# Get all the columns in the specified table
-		column_result = cls._conn.execute(column_query % cls.table_name, results=True)
+		column_result = cls._conn.execute(column_query % cls.table_name,
+				results=True)
 		if not column_result:
 			raise Exception("Cannot find table %s" % cls.table_name)
 		# pull only the column names using list comprehension
@@ -171,7 +184,8 @@ class ImpulseObject(object):
 		for key, val in kwargs.items()[1:]:
 			additional += "and %s = '%s' " % (key, val)
 		additional += ';'
-		res = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name, kwargs.items()[0][0], kwargs.items()[0][1]) + additional, results=True)
+		res = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name,
+			kwargs.items()[0][0], kwargs.items()[0][1]) + additional, results=True)
 		if not res:
 			return None
 

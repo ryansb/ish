@@ -75,11 +75,13 @@ class System(ImpulseObject):
 			return False
 		if not self.comment:
 			self.comment = "NULL"
-		query = self.creation_query.format(name=self.system_name,
+		query = self.creation_query.format(system_name=self.system_name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
 		self._conn.execute(query)
-		return self.find(self.pkey)
+		obj = self.find(self.system_name)
+		self.__dict__ = obj .__dict__
+		return obj
 
 
 class Interface(ImpulseObject):
@@ -121,4 +123,6 @@ class Interface(ImpulseObject):
 		query = self.creation_query.format(name=self.system_name, mac=self.mac,
 				comment=self.comment)
 		self._conn.execute(query)
-		return self.find(self.pkey)
+		obj = self.find(self.system_name)
+		self.__dict__ = obj .__dict__
+		return obj
