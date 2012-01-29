@@ -55,7 +55,6 @@ class ConnectionSingleton(object):
 		return self.db_conn.api_query(query, results)
 
 
-
 class DBConnection(object):
 	def __init__(self, dbname, uname, passwd, host, port):
 		import psycopg2
@@ -85,8 +84,29 @@ class DBConnection(object):
 			return ret
 
 
+class ImmutabilityMeta(type):
+	"""A metaclass to prevent the alteration of certain key attributes that
+	users shouldn't mess with anyways"""
+
+	def __setattr__(cls, name, value):
+		immutables = ('table_name', 'schema_name', 'required_properties',
+				'optional_properties', 'pkey', 'removal_query', 'creation_query')
+		if name in immutables:
+			raise AttributeError("Cannot modify .%s" % name)
+		return type.__setattr__(cls, name, value)
+
+	def __delattr__(cls, name):
+		immutables = ('table_name', 'schema_name', 'required_properties',
+				'optional_properties', 'pkey', 'removal_query', 'creation_query')
+		if name in immutables:
+			raise AttributeError("Cannot delete .%s" % name)
+		return type.__delattr__(cls, name)
+
+
+
 class ImpulseObject(object):
 	_conn = ConnectionSingleton()
+	__metaclass__ = ImmutabilityMeta
 
 	def __init__(self):
 		super(ImpulseObject, self).__init__()
