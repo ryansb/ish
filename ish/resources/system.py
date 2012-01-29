@@ -78,35 +78,47 @@ class System(ImpulseObject):
 		query = self.creation_query.format(name=self.system_name,
 				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
 				comment=self.comment)
-		return self._conn.execute(query)
+		self._conn.execute(query)
+		return self.find(self.pkey)
 
 
 class Interface(ImpulseObject):
-	system_name = None  # Name of the system
-	mac = None  # Owning user (NULL for current authenticated user)
-	comment = None  # Comment on the system (or NULL for no comment)
+	__metaclass__ = ImmutabilityMeta
 	pkey = "mac"  # What parameter does the deletion query require?
+	table_name = "interfaces"
+	schema_name = 'systems'
 	removal_query = """SELECT api.remove_interface('%s');"""
 	# Query that removes the object
 	creation_query = """SELECT api.create_interface('{name}', '{mac}', "
 			+ "{comment}');"""  # Query to create an object
+	_constraints = None
 
-	def __init__(self, user, dbcursor, system_name=None, mac=None, comment=None):
-		self.system_name = system_name
+	mac = None  # MAC address of the interface
+	name = None
+	system_name = None  # Name of the system
+	comment = None  # Comment on the system (or NULL for no comment)
+
+	def __init__(self, mac=None, name=None, system_name=None, comment=None):
 		self.mac = mac
+		self.name = name
+		self.system_name = system_name
 		self.comment = comment
-		ImpulseObject.__init__(self, user, dbcursor)
+		self._constraints = {
+				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT type FROM systems.systems;", results=True)),
+				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT name FROM systems.os;", results=True)),
+				}
+		ImpulseObject.__init__(self)
 
-	def create(self):
+	def put(self):
 		if not (self.system_name and self.mac):
 			print ("Missing Parameter.\nSystem name: %s\nMAC: %s"
 					% (self.system_name, self.mac))
-			return False
-		if not self.cursor:
-			print "No database connection"
 			return False
 		if not self.comment:
 			self.comment = "NULL"
 		query = self.creation_query.format(name=self.system_name, mac=self.mac,
 				comment=self.comment)
-		return ImpulseObject.create(self, query)
+		self._conn.execute(query)
+		return self.find(self.pkey)
