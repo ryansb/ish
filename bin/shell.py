@@ -49,6 +49,16 @@ class Auth(object):
 		return auth()
 
 
+class QuickCreate(object):
+	def __repr__(self):
+		return self.__call__()
+
+	def __call__(self):
+		system = System()
+		system.configure()
+		return system
+
+
 if __name__ == "__main__":
 	#do something about logging sometime
 	from ish.resources.system import System
@@ -65,6 +75,7 @@ if __name__ == "__main__":
 
 	OBJS = local.keys()
 	local["ls"] = Ls()
+	local["quick_create"] = QuickCreate()
 	local["auth"] = Auth()
 	local["system"] = System
 	welcome = """Impulse Shell
