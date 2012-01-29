@@ -85,18 +85,17 @@ def ish_prompt(p, required=True, constraints=None):
 		else:
 			#create a dictionary with numbers as keys, the constraints as values
 			options = dict(zip(range(len(constraints)), constraints))
-			print options
 			#use a lambda to make options formatted like:
 			#   [0]:   this
 			#   [1]:   that
 			#   [2]:   other
 			prompt = ("From choices:\n" + ''.join(map(lambda (k, v):
-						"   [%s];   %s\n" % (k, v), options.items())) + p + ": ")
-			val = raw_input(prompt)
-			if not int(val) in options.keys():
+					"   [%s];   %s\n" % (k, v), options.items())) + p + ": ")
+			val = int(raw_input(prompt))
+			if not val < len(options.values()):
 				val = None
 			else:
-				val = options[int(val)]
+				val = options.values()[val]
 		if not required:
 			break
 	return val
