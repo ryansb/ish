@@ -145,9 +145,7 @@ class ImpulseObject(object):
 		columns = [res[3] for res in column_result]
 
 		obj_query = """select * from %s.%s where %s = '%s'"""
-		print obj_query % (cls.schema_name, cls.table_name, cls.pkey, pkey)
 		obj = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name, cls.pkey, pkey), results=True)
-		print obj
 		if not obj:
 			raise Exception("Cannot find object %s with key %s" %
 					(pkey, cls.pkey))

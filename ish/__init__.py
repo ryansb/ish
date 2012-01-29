@@ -83,8 +83,17 @@ def ish_prompt(p, required=True, constraints=None):
 		if not constraints:
 			val = raw_input(p + ": ")
 		else:
+			constraints = sorted([c.lower() for c in constraints])
+			opt_lists = []
+			options = {}
 			#create a dictionary with numbers as keys, the constraints as values
-			options = dict(zip(range(len(constraints)), constraints))
+			if len(constraints) <= 30:
+				options = dict(zip(range(len(constraints)), constraints))
+			else:
+				for count in range(int(len(constraints)/30+1)):
+					opt_lists.append(constraints[count*30:count*30+30])
+				for segment in opt_lists:
+					options[len(options)] = "%s - %s" % (segment[0], segment[-1])
 			#use a lambda to make options formatted like:
 			#   [0]:   this
 			#   [1]:   that
@@ -94,8 +103,10 @@ def ish_prompt(p, required=True, constraints=None):
 			val = int(raw_input(prompt))
 			if not val < len(options.values()):
 				val = None
-			else:
+			elif len(constraints) <= 30:
 				val = options.values()[val]
+			else:
+				val = ish_prompt(p, required=required, constraints=opt_lists[val])
 		if not required:
 			break
 	return val

@@ -38,12 +38,19 @@ class System(ImpulseObject):
 	creation_query = ("SELECT api.create_system('{system_name}', '{owner}',"
 	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
+	_interfaces = None
+
 	system_name = None  # Name of the system
 	owner = None  # Owning user (NULL for current authenticated user)
 	sys_type = None  # Server, Desktop, Laptop, etc
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
 	_constraints = None
+
+	@property
+	def interfaces(self):
+		self._interfaces = Interface.search(system_name=self.system_name)
+		return self._interfaces
 
 	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
 		self.system_name = name
@@ -89,6 +96,8 @@ class Interface(ImpulseObject):
 	pkey = "mac"  # What parameter does the deletion query require?
 	table_name = "interfaces"
 	schema_name = 'systems'
+	required_properties = ('name', 'mac')
+	optional_properties = ('system_name', 'comment')
 	removal_query = """SELECT api.remove_interface('%s');"""
 	# Query that removes the object
 	creation_query = """SELECT api.create_interface('{name}', '{mac}', "
@@ -107,9 +116,7 @@ class Interface(ImpulseObject):
 		self.comment = comment
 		self._constraints = {
 				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT type FROM systems.systems;", results=True)),
-				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT name FROM systems.os;", results=True)),
+						"SELECT system_name FROM systems.systems;", results=True)),
 				}
 		ImpulseObject.__init__(self)
 
