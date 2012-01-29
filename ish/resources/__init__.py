@@ -50,7 +50,7 @@ class ConnectionSingleton(object):
 	def execute(self, query, results=False):
 		try:
 			return self.db_conn.api_query(query, results)
-		except Exception, error:
+		except Exception:
 			self._db_conn = None
 		return self.db_conn.api_query(query, results)
 
@@ -145,7 +145,8 @@ class ImpulseObject(object):
 		columns = [res[3] for res in column_result]
 
 		obj_query = """select * from %s.%s where %s = '%s'"""
-		obj = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name, cls.pkey, pkey), results=True)
+		obj = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name,
+				cls.pkey, pkey), results=True)
 		if not obj:
 			raise Exception("Cannot find object %s with key %s" %
 					(pkey, cls.pkey))

@@ -38,7 +38,7 @@ class System(ImpulseObject):
 	creation_query = ("SELECT api.create_system('{system_name}', '{owner}',"
 	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
-	_interfaces = None
+	_interfaces = []
 
 	system_name = None  # Name of the system
 	owner = None  # Owning user (NULL for current authenticated user)
@@ -49,13 +49,21 @@ class System(ImpulseObject):
 
 	@property
 	def interfaces(self):
+		if self._interfaces:
+			return self._interfaces
 		self._interfaces = Interface.search(system_name=self.system_name)
 		return self._interfaces
 
 	@interfaces.setter
 	def interfaces(self, value):
+		self.interfaces
 		if not isinstance(value, list):
 			value = [value, ]
+		value = filter(lambda val: isinstance(val, Interface), value)
+		map(lambda val: setattr(val, 'system_name', self.system_name), value)
+		#value = [setattr(val, 'owner', self.system_name)
+				#for val in value]
+		value.put()
 		if self._interfaces:
 			self._interfaces.extend(value)
 		else:
