@@ -43,7 +43,7 @@ class System(ImpulseObject):
 
 	system_name = None  # Name of the system
 	owner = None  # Owning user (NULL for current authenticated user)
-	sys_type = None  # Server, Desktop, Laptop, etc
+	type = None  # Server, Desktop, Laptop, etc
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
 	_constraints = None
@@ -73,7 +73,7 @@ class System(ImpulseObject):
 
 	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
 		self.system_name = name
-		self.sys_type = sys_type
+		self.type = sys_type
 		self.os_name = osname
 		self.comment = comment
 		self.owner = get_username()
@@ -84,25 +84,25 @@ class System(ImpulseObject):
 				#	if k in self.__dict__.keys()
 				#		if not self.__dict__[k] in self._constraints[k]:
 				#			raise "Value not within constraints"
-				"sys_type": reduce(lambda a, b: a + b, self._conn.execute(
+				"type": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT type FROM systems.device_types;", results=True)),
 				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT name FROM systems.os;", results=True)),
 				}
 		ImpulseObject.__init__(self)
-		if name and sys_type and osname:
+		if name and self.type and osname:
 			self.create()
 
 	def put(self):
-		if not (self.system_name and self.owner and self.sys_type and self.os_name):
+		if not (self.system_name and self.owner and self.type and self.os_name):
 			print (("Missing Parameter.\nSystem name: %s\nOwner: %s\n"
 					+ "System type: %s\nOS: %s")
-					% (self.system_name, self.owner, self.sys_type, self.os_name))
+					% (self.system_name, self.owner, self.type, self.os_name))
 			return False
 		if not self.comment:
 			self.comment = "NULL"
 		query = self.creation_query.format(system_name=self.system_name,
-				owner=self.owner, sys_type=self.sys_type, os_name=self.os_name,
+				owner=self.owner, sys_type=self.type, os_name=self.os_name,
 				comment=self.comment)
 		self._conn.execute(query)
 		obj = self.find(self.system_name)
