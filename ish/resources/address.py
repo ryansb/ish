@@ -22,7 +22,55 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from ish.resources import ImpulseObject
+from ish.resources import ImpulseObject, ImmutabilityMeta
+
+
+class Address(ImpulseObject):
+	__metaclass__ = ImmutabilityMeta
+	pkey = "address"  # What parameter does the deletion query require?
+	table_name = "interface_addresses"
+	schema_name = 'systems'
+	required_properties = ('address', 'isprimary', 'family', 'config')
+	optional_properties = ('mac','class', 'comment')
+	removal_query = """SELECT api.remove_interface_address('%s');"""
+	# Query that removes the object
+	creation_query = ("""SELECT api.create_interface_address_manual(""" +
+			"""'{mac}', '{address}', '{config}', '{class}', '{isprimary}',""" +
+			"""'{comment}');""") # Query to create an object
+	_constraints = None
+	_addresses = []
+
+	mac = None  # MAC address of the interface
+	address = None
+	#__dict__['class'] = None
+	config = None
+	isprimary = False
+	comment = None  # Comment on the system (or NULL for no comment)
+
+	def __init__(self, mac=None, name=None, system_name=None, comment=None):
+		self.mac = mac
+		self.name = name
+		self.system_name = system_name
+		self.comment = comment
+		self._constraints = {
+				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT system_name FROM systems.systems;", results=True)),
+				}
+		ImpulseObject.__init__(self)
+
+	def put(self):
+		if not (self.system_name and self.mac):
+			print ("Missing Parameter.\nSystem name: %s\nMAC: %s"
+					% (self.system_name, self.mac))
+			return False
+		if not self.comment:
+			self.comment = "NULL"
+		query = self.creation_query.format(name=self.system_name, mac=self.mac,
+				comment=self.comment)
+		self._conn.execute(query)
+		obj = self.find(self.system_name)
+		self.__dict__ = obj .__dict__
+		return obj
 
 
 class Subnet(ImpulseObject):

@@ -24,6 +24,7 @@
 # SOFTWARE.
 from ish import get_username
 from ish.resources import ImpulseObject, ImmutabilityMeta
+from ish.resources.address import Address
 
 
 class System(ImpulseObject):
@@ -31,7 +32,7 @@ class System(ImpulseObject):
 	pkey = "system_name"  # What parameter does the deletion query require?
 	table_name = 'systems'
 	schema_name = 'systems'
-	required_properties = ('system_name', 'sys_type', 'os_name')
+	required_properties = ('system_name', 'type', 'os_name')
 	optional_properties = ('comment', )
 	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
@@ -121,11 +122,33 @@ class Interface(ImpulseObject):
 	creation_query = """SELECT api.create_interface('{name}', '{mac}', "
 			+ "{comment}');"""  # Query to create an object
 	_constraints = None
+	_addresses = []
 
 	mac = None  # MAC address of the interface
 	name = None
 	system_name = None  # Name of the system
 	comment = None  # Comment on the system (or NULL for no comment)
+
+	@property
+	def addresses(self):
+		if self._addresses:
+			return self._addresses
+		self._addresses = Address.search(mac=self.mac)
+		return self._addresses
+
+	@addresses.setter
+	def addresses(self, value):
+		self.addresses
+		if not isinstance(value, list):
+			value = [value, ]
+		value = filter(lambda val: isinstance(val, Address), value)
+		map(lambda val: setattr(val, 'mac', self.mac), value)
+		value.put()
+		if self._addresses:
+			self._addresses.extend(value)
+		else:
+			self.addresses
+			self._addresses.extend(value)
 
 	def __init__(self, mac=None, name=None, system_name=None, comment=None):
 		self.mac = mac
