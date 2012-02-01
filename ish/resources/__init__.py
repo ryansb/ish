@@ -157,6 +157,35 @@ class ImpulseObject(object):
 		return result
 
 	@classmethod
+	def all(cls):
+		if isinstance(cls, ImpulseObject):
+			raise NotImplementedError("Can't run this on a generic" +
+					" ImpulseObject.")
+		column_query = ("""select * from information_schema.columns""" +
+				""" where table_name = '%s'""")
+		# Get all the columns in the specified table
+		column_result = cls._conn.execute(column_query % cls.table_name,
+				results=True)
+		if not column_result:
+			raise Exception("Cannot find table %s" % cls.table_name)
+		# pull only the column names using list comprehension
+		columns = [res[3] for res in column_result]
+
+		obj_query = """select * from %s.%s;"""
+		res = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name),
+				results=True)
+		if not res:
+			return None
+
+		results = []
+		for item in res:
+			obj = cls()
+			for col, val in zip(columns, item):
+				obj.__dict__[col] = val
+			results.append(obj)
+		return results
+
+	@classmethod
 	def search(cls, **kwargs):
 		"""Return a list objects that match parameters that aren't primary
 		keys
