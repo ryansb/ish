@@ -96,26 +96,51 @@ class Subnet(ImpulseObject):
 
 
 class IPRange(ImpulseObject):
-	input_name = None  # The name of the range
-	input_first_ip = None  # The first IP address of the range
-	input_last_ip = None  # The last IP address of the range
-	input_subnet = None  # The subnet containing the range
-	input_use = None  # A use (see documentation for uses)
-	input_class = None  # The DHCP class of the range.
-		#NOTE: input_class of NULL will allow unknown clients to get a lease
-	input_comment = None  # A comment on the range (or NULL for no comment
-	removal_parameter = "input_name"
+	__metaclass__ = ImmutabilityMeta
+	pkey = "name"  # What parameter does the deletion query require?
+	table_name = "ranges"
+	schema_name = 'ip'
+	required_properties = ('name', 'first_ip', 'last_ip', 'subnet', 'use',
+			'class')
+	optional_properties = ('comment',)
+	removal_parameter = "name"
+	removal_query = """SELECT api.remove_ip_range('%s');"""
+	# Query that removes the object
+	creation_query = ("""SELECT api.create_ip_range(""" +
+			"""'{name}', '{first_ip}', '{last_ip}', '{subnet}', '{use}',""" +
+			"""'{in_class}', '{comment}');""") # Query to create an object
+	_constraints = None
+
+	name = None  # The name of the range
+	first_ip = None  # The first IP address of the range
+	last_ip = None  # The last IP address of the range
+	subnet = None  # The subnet containing the range
+	use = None  # A use (see documentation for uses)
+	comment = None  # A comment on the range (or NULL for no comment
 
 	def __init__(self, name=None, first_ip=None, last_ip=None, subnet=None,
 			use=None, inp_class=None, comment=None):
-		self.input_name = name
-		self.input_first_ip = first_ip
-		self.input_last_ip = last_ip
-		self.input_subnet = subnet
-		self.input_use = use
-		self.input_class = inp_class
-		self.input_comment = comment
+		self.name = name
+		self.first_ip = first_ip
+		self.last_ip = last_ip
+		self.subnet = subnet
+		self.use = use
+		setattr(self, 'class', inp_class)
+		self.comment = comment
 
+	def put(self):
+		if not (self.system_name and self.mac):
+			print ("Missing Parameter.\nSystem name: %s\nMAC: %s"
+					% (self.system_name, self.mac))
+			return False
+		if not self.comment:
+			self.comment = "NULL"
+		query = self.creation_query.format(name=self.system_name, mac=self.mac,
+				comment=self.comment)
+		self._conn.execute(query)
+		obj = self.find(self.system_name)
+		self.__dict__ = obj .__dict__
+		return obj
 
 class AddressRange(ImpulseObject):
 	input_first_ip = None  # First address of the range
