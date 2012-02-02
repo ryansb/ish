@@ -35,20 +35,20 @@ class Address(ImpulseObject):
 	removal_query = """SELECT api.remove_interface_address('%s');"""
 	# Query that removes the object
 	creation_query = ("""SELECT api.create_interface_address_manual(""" +
-			"""'{mac}', '{address}', '{config}', '{class}', '{isprimary}',""" +
+			"""'{mac}', '{address}', '{config}', '{klass}', '{isprimary}',""" +
 			"""'{comment}');""") # Query to create an object
 	_constraints = None
-	_addresses = []
 
 	mac = None  # MAC address of the interface
 	address = None
-	#__dict__['class'] = None
 	config = None
 	isprimary = False
 	comment = None  # Comment on the system (or NULL for no comment)
 
-	def __init__(self, mac=None, name=None, system_name=None, comment=None):
+	def __init__(self, mac=None, name=None, system_name=None,
+			address_class=None, comment=None):
 		self.mac = mac
+		setattr(self, 'class', address_class)
 		self.name = name
 		self.system_name = system_name
 		self.comment = comment
@@ -65,8 +65,9 @@ class Address(ImpulseObject):
 			return False
 		if not self.comment:
 			self.comment = "NULL"
-		query = self.creation_query.format(name=self.system_name, mac=self.mac,
-				comment=self.comment)
+		query = self.creation_query.format(mac=self.mac, address=self.address,
+				config=self.config, klass=getattr(self, 'class'),
+				isprimary=self.isprimary, comment=self.comment)
 		self._conn.execute(query)
 		obj = self.find(self.system_name)
 		self.__dict__ = obj .__dict__
