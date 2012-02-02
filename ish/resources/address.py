@@ -144,12 +144,12 @@ class IPRange(ImpulseObject):
 		self.__dict__ = obj .__dict__
 		return obj
 
-class AddressRange(ImpulseObject):
-	input_first_ip = None  # First address of the range
-	input_last_ip = None  # Last address of the range
-	input_subnet = None  # Subnet containign the range
+#class AddressRange(ImpulseObject):
+	#input_first_ip = None  # First address of the range
+	#input_last_ip = None  # Last address of the range
+	#input_subnet = None  # Subnet containign the range
 
-	def __init__(self, first_ip=None, last_ip=None, subnet=None):
-		self.input_first_ip = first_ip
-		self.input_last_ip = last_ip
-		self.input_subnet = subnet
+	#def __init__(self, first_ip=None, last_ip=None, subnet=None):
+		#self.input_first_ip = first_ip
+		#self.input_last_ip = last_ip
+		#self.input_subnet = subnet
