@@ -135,7 +135,9 @@ class IPRange(ImpulseObject):
 			return False
 		if not self.comment:
 			self.comment = "NULL"
-		query = self.creation_query.format(name=self.system_name, mac=self.mac,
+		query = self.creation_query.format(name=self.name,
+				first_ip=self.first_ip, last_ip=self.last_ip, subnet=self.subnet,
+				use=self.use, in_class=getattr(self, 'class'),
 				comment=self.comment)
 		self._conn.execute(query)
 		obj = self.find(self.system_name)
