@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
 	interface.name = options.interface_name
 
-	interface.comment = options.comment
+	interface.comment = options.interface_comment
 
 	if not options.mac:
 		options.mac = ish_prompt("Enter the MAC address of the interface")

@@ -197,6 +197,6 @@ class Interface(ImpulseObject):
 		query = self.creation_query.format(name=self.system_name, mac=self.mac,
 				comment=self.comment)
 		self._conn.execute(query)
-		obj = self.find(self.system_name)
-		self.__dict__ = obj .__dict__
+		obj = self.find(self.mac)
+		self.__dict__ = obj.__dict__
 		return obj
