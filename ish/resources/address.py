@@ -31,12 +31,12 @@ class Address(ImpulseObject):
 	table_name = "interface_addresses"
 	schema_name = 'systems'
 	required_properties = ('address', 'isprimary', 'family', 'config')
-	optional_properties = ('mac','class', 'comment')
+	optional_properties = ('mac', 'class', 'comment')
 	removal_query = """SELECT api.remove_interface_address('%s');"""
 	# Query that removes the object
 	creation_query = ("""SELECT api.create_interface_address_manual(""" +
 			"""'{mac}', '{address}', '{config}', '{klass}', '{isprimary}',""" +
-			"""'{comment}');""") # Query to create an object
+			"""'{comment}');""")  # Query to create an object
 	_constraints = None
 
 	mac = None  # MAC address of the interface
@@ -87,9 +87,8 @@ class Subnet(ImpulseObject):
 	# Query that removes the object
 	creation_query = ("""SELECT api.create_ip_subnet(""" +
 			"""'{subnet}', '{name}', '{comment}', '{autogen}', '{dhcp}',""" +
-			"""'{zone}', '{owner}');""") # Query to create an object
+			"""'{zone}', '{owner}');""")  # Query to create an object
 	_constraints = None
-
 
 	subnet = None  # The subnet in CIDR notation
 	name = None  # The name of this subnet
@@ -144,7 +143,7 @@ class IPRange(ImpulseObject):
 	# Query that removes the object
 	creation_query = ("""SELECT api.create_ip_range(""" +
 			"""'{name}', '{first_ip}', '{last_ip}', '{subnet}', '{use}',""" +
-			"""'{in_class}', '{comment}');""") # Query to create an object
+			"""'{in_class}', '{comment}');""")  # Query to create an object
 	_constraints = None
 
 	name = None  # The name of the range
