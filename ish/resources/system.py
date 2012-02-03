@@ -144,6 +144,14 @@ class Interface(ImpulseObject):
 	comment = None  # Comment on the system (or NULL for no comment)
 
 	@property
+	def constraints(self):
+		self._constraints = {
+				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT system_name FROM systems.systems;", results=True)),
+				}
+		return self._constraints
+
+	@property
 	def addresses(self):
 		if self._addresses:
 			return self._addresses
@@ -156,12 +164,16 @@ class Interface(ImpulseObject):
 		if not isinstance(value, list):
 			value = [value, ]
 		value = filter(lambda val: isinstance(val, Address), value)
-		map(lambda val: setattr(val, 'mac', self.mac), value)
-		map(lambda val: val.put(), value)
+		for val in value:
+			setattr(val, 'mac', self.mac)
+			val.constraints
+			val.put()
 		if self._addresses:
 			self._addresses.extend(value)
 		else:
 			self.addresses
+			if not self._addresses:
+				self._addresses = []
 			self._addresses.extend(value)
 
 	def __init__(self, mac=None, name=None, system_name=None, comment=None):
