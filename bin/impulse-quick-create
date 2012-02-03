@@ -96,6 +96,10 @@ if __name__ == "__main__":
 	interface.mac = options.mac
 	address.mac = options.mac
 
+	if not options.dhcp_config in address.get_constraint('config'):
+		options.dhcp_config = ish_prompt("Choose DHCP configuration type")
+	address.config = options.dhcp_config
+
 	#get possible ranges
 	avail_ranges = [s.name for s in IPRange.all()]
 	if not options.ip_range or options.ip_range not in avail_ranges:
