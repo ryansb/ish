@@ -165,9 +165,9 @@ class IPRange(ImpulseObject):
 		ImpulseObject.__init__(self)
 
 	def put(self):
-		if not (self.system_name and self.mac):
-			print ("Missing Parameter.\nSystem name: %s\nMAC: %s"
-					% (self.system_name, self.mac))
+		try:
+			self.enforce_constraints()
+		except ValueError:
 			return False
 		if not self.comment:
 			self.comment = "NULL"
