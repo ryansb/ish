@@ -64,7 +64,7 @@ class System(ImpulseObject):
 		map(lambda val: setattr(val, 'system_name', self.system_name), value)
 		#value = [setattr(val, 'owner', self.system_name)
 				#for val in value]
-		value.put()
+		map(lambda val: val.put(), value)
 		if self._interfaces:
 			self._interfaces.extend(value)
 		else:
@@ -145,7 +145,7 @@ class Interface(ImpulseObject):
 			value = [value, ]
 		value = filter(lambda val: isinstance(val, Address), value)
 		map(lambda val: setattr(val, 'mac', self.mac), value)
-		value.put()
+		map(lambda val: val.put(), value)
 		if self._addresses:
 			self._addresses.extend(value)
 		else:

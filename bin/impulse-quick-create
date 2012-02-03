@@ -25,3 +25,86 @@
 # SOFTWARE.
 
 
+from ish import __version__
+from optparse import OptionParser
+from ish import ish_prompt
+from ish.resources.system import System
+from ish.resources.address import Address
+from ish.resources.address import IPRange
+from ish.resources.system import Interface
+if __name__ == "__main__":
+	parser = OptionParser(version=__version__,
+			usage="%prog [options] system_name")
+	parser.add_option("-p", "--pretend", help="Don't actually put() the system",
+			default=False, action="store_true", dest="pretend")
+	parser.add_option("-t", "--type", help="Type of the system",
+			dest="system_type")
+	parser.add_option("--os", "--os-name",
+			help="Name of the OS the system is running", dest="os_name")
+	parser.add_option("-c", "--comment",
+			help="Descriptive comment about the system", dest="comment")
+	parser.add_option("-m", "--mac",
+			help="MAC address of the interface to be registered", dest="mac")
+	parser.add_option("--int-name", "--interface-name",
+			help="Name of the interface. Defaults to 'Main Interface'",
+			dest="interface_name", default="Main Interface")
+	parser.add_option("--int-comment", "--interface-comment",
+			help="Descriptive comment for the interface.",
+			dest="interface_comment", default="")
+	parser.add_option("-r", "--ip-range",
+			help="The IP range you want an IP address from", dest="ip_range")
+
+	(options, args) = parser.parse_args()
+	system = System()
+	interface = Interface()
+	address = Address()
+
+	if len(args) < 1:
+		parser.print_help()
+		exit()
+
+	if not options.os_name in system.get_constraint('os_name'):
+		options.os_name = ish_prompt("Select OS Name: ",
+				constraints=system.get_constraint('os_name'))
+
+	system.os_name = options.os_name
+
+	if not options.system_type in system.get_constraint('type'):
+		options.system_type = ish_prompt("Select system type: ",
+				constraints=system.get_constraint('type'))
+
+	system.type = options.system_type
+
+	system.comment = options.comment
+
+	interface.name = options.interface_name
+
+	interface.comment = options.comment
+
+	if not options.mac:
+		options.mac = ish_prompt("Enter the MAC address of the interface: ")
+	interface.mac = options.mac
+	address.mac = options.mac
+
+	#get possible ranges
+	avail_ranges = [s.name for s in IPRange.all()]
+	if not options.ip_range or options.ip_range not in avail_ranges:
+		options.ip_range = ish_prompt("Select an IP range: ",
+				constraints=avail_ranges)
+	#grab an address from that range
+	ip_range = IPRange.find(options.ip_range)
+	#assign it to the interface
+	address.address = ip_range.get_unused_address()
+	print "Interface will be configured to use " + address.address
+
+	system.system_name = args[0]
+
+	if not options.pretend:
+		system.put()
+		system.interfaces = interface
+		interface.addresses = address
+
+	print "Created system with name %s and IP address %s" % (system.system_name,
+			address.address)
+
+	exit()
