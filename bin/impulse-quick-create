@@ -61,6 +61,10 @@ if __name__ == "__main__":
 	interface = Interface()
 	address = Address()
 
+	if len(args) < 1:
+		parser.print_help()
+		exit()
+
 	address.isprimary = True
 
 	if not options.dhcp_config in system.get_constraint('config'):
@@ -68,10 +72,6 @@ if __name__ == "__main__":
 				constraints=address.get_constraint('config'))
 
 	address.dhcp_config = options.dhcp_config
-
-	if len(args) < 1:
-		parser.print_help()
-		exit()
 
 	if not options.os_name in system.get_constraint('os_name'):
 		options.os_name = ish_prompt("Select OS Name",
