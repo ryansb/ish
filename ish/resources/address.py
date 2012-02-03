@@ -75,24 +75,60 @@ class Address(ImpulseObject):
 
 
 class Subnet(ImpulseObject):
-	input_subnet = None  # The subnet in CIDR notation
-	input_name = None  # The name of this subnet
-	input_comment = None   # A comment on the subnet (or NULL for no comment)
-	input_autogen = None  # Autopopulate the IP addresses table (adv. use only)
-	input_dhcp = None  # TRUE to allow this subnet for DHCP, FALSE for not
-	input_zone = None  # DNS zone to associate with this subnet
-	input_owner = None  # The owner of the subnet (or NULL for current user)
-	removal_parameter = "input_subnet"
+	__metaclass__ = ImmutabilityMeta
+	pkey = "subnet"  # What parameter does the deletion query require?
+	table_name = "subnets"
+	schema_name = 'ip'
+	required_properties = ('subnet', 'name', 'autogen', 'dhcp', 'zone',
+			'owner')
+	optional_properties = ('comment',)
+	removal_parameter = 'subnet'
+	removal_query = """SELECT api.remove_ip_subnet('%s');"""
+	# Query that removes the object
+	creation_query = ("""SELECT api.create_ip_subnet(""" +
+			"""'{subnet}', '{name}', '{comment}', '{autogen}', '{dhcp}',""" +
+			"""'{zone}', '{owner}');""") # Query to create an object
+	_constraints = None
+
+
+	subnet = None  # The subnet in CIDR notation
+	name = None  # The name of this subnet
+	comment = None   # A comment on the subnet (or NULL for no comment)
+	autogen = None  # Autopopulate the IP addresses table (adv. use only)
+	dhcp = None  # TRUE to allow this subnet for DHCP, FALSE for not
+	zone = None  # DNS zone to associate with this subnet
+	owner = None  # The owner of the subnet (or NULL for current user)
 
 	def __init__(self, subnet=None, name=None, comment=None, autogen=None,
 			dhcp=None, zone=None, owner=None):
-		self.input_subnet = subnet
-		self.input_name = name
-		self.input_comment = comment
-		self.input_autogen = autogen
-		self.input_dhcp = dhcp
-		self.input_zone = zone
-		self.input_owner = owner
+		self.subnet = subnet
+		self.name = name
+		self.comment = comment
+		self.autogen = autogen
+		self.dhcp = dhcp
+		self.zone = zone
+		self.owner = owner
+		self._constraints = {
+				"autogen": ('TRUE', 'FALSE'),
+				"dhcp": ('TRUE', 'FALSE'),
+				}
+		ImpulseObject.__init__(self)
+
+	def put(self):
+		if not (self.system_name and self.mac):
+			print ("Missing Parameter.\nSystem name: %s\nMAC: %s"
+					% (self.system_name, self.mac))
+			return False
+		if not self.comment:
+			self.comment = "NULL"
+		query = self.creation_query.format(name=self.name,
+				first_ip=self.first_ip, last_ip=self.last_ip, subnet=self.subnet,
+				use=self.use, in_class=getattr(self, 'class'),
+				comment=self.comment)
+		self._conn.execute(query)
+		obj = self.find(self.system_name)
+		self.__dict__ = obj .__dict__
+		return obj
 
 
 class IPRange(ImpulseObject):
