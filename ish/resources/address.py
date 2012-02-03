@@ -83,7 +83,7 @@ class Address(ImpulseObject):
 				config=self.config, klass=getattr(self, 'class'),
 				isprimary=self.isprimary, comment=self.comment)
 		self._conn.execute(query)
-		obj = self.find(self.system_name)
+		obj = self.find(self.address)
 		self.__dict__ = obj .__dict__
 		return obj
 
