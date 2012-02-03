@@ -71,14 +71,16 @@ class System(ImpulseObject):
 		if not isinstance(value, list):
 			value = [value, ]
 		value = filter(lambda val: isinstance(val, Interface), value)
-		map(lambda val: setattr(val, 'system_name', self.system_name), value)
-		#value = [setattr(val, 'owner', self.system_name)
-				#for val in value]
-		map(lambda val: val.put(), value)
+		for val in value:
+			setattr(val, 'system_name', self.system_name)
+			val.constraints
+			val.put()
 		if self._interfaces:
 			self._interfaces.extend(value)
 		else:
 			self.interfaces
+			if not self._interfaces:
+				self._interfaces = []
 			self._interfaces.extend(value)
 
 	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
