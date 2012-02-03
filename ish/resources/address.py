@@ -127,6 +127,7 @@ class IPRange(ImpulseObject):
 		self.use = use
 		setattr(self, 'class', inp_class)
 		self.comment = comment
+		ImpulseObject.__init__(self)
 
 	def put(self):
 		if not (self.system_name and self.mac):

@@ -118,7 +118,7 @@ class ImpulseObject(object):
 	__metaclass__ = ImmutabilityMeta
 
 	def __init__(self):
-		super(ImpulseObject, self).__init__()
+		pass
 
 	def remove(self, debug=False):
 		#run this query on the db
