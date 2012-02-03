@@ -88,6 +88,8 @@ class System(ImpulseObject):
 						"SELECT type FROM systems.device_types;", results=True)),
 				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT name FROM systems.os;", results=True)),
+				#"owner":reduce(lambda a, b: a + b, self._conn.execute(
+						#"SELECT name FROM users.users;", results=True)),
 				}
 		ImpulseObject.__init__(self)
 		if name and self.type and osname:
