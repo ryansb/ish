@@ -193,7 +193,7 @@ class Interface(ImpulseObject):
 		except ValueError:
 			return False
 		if not self.comment:
-			self.comment = "NULL"
+			self.comment = ''
 		query = self.creation_query.format(name=self.system_name, mac=self.mac,
 				comment=self.comment)
 		self._conn.execute(query)
