@@ -38,7 +38,6 @@ class Address(ImpulseObject):
 			"""'{mac}', '{address}', '{config}', '{klass}', '{isprimary}',""" +
 			"""'{comment}');""")  # Query to create an object
 	_constraints = None
-
 	mac = None  # MAC address of the interface
 	address = None
 	config = None
@@ -89,7 +88,6 @@ class Subnet(ImpulseObject):
 			"""'{subnet}', '{name}', '{comment}', '{autogen}', '{dhcp}',""" +
 			"""'{zone}', '{owner}');""")  # Query to create an object
 	_constraints = None
-
 	subnet = None  # The subnet in CIDR notation
 	name = None  # The name of this subnet
 	comment = None   # A comment on the subnet (or NULL for no comment)
@@ -145,7 +143,6 @@ class IPRange(ImpulseObject):
 			"""'{name}', '{first_ip}', '{last_ip}', '{subnet}', '{use}',""" +
 			"""'{in_class}', '{comment}');""")  # Query to create an object
 	_constraints = None
-
 	name = None  # The name of the range
 	first_ip = None  # The first IP address of the range
 	last_ip = None  # The last IP address of the range
