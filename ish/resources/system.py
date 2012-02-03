@@ -133,8 +133,8 @@ class Interface(ImpulseObject):
 	optional_properties = ('system_name', 'comment')
 	removal_query = """SELECT api.remove_interface('%s');"""
 	# Query that removes the object
-	creation_query = ("""SELECT api.create_interface('{name}', '{mac}', """ +
-		"""'{comment}');""")  # Query to create an object
+	creation_query = ("""SELECT api.create_interface('{sys_name}', '{mac}', """
+			+ """'{name}', '{comment}');""")  # Query to create an object
 	_constraints = None
 	_addresses = []
 
@@ -194,8 +194,8 @@ class Interface(ImpulseObject):
 			return False
 		if not self.comment:
 			self.comment = ''
-		query = self.creation_query.format(name=self.system_name, mac=self.mac,
-				comment=self.comment)
+		query = self.creation_query.format(sys_name=self.system_name, mac=self.mac,
+				name=self.name, comment=self.comment)
 		self._conn.execute(query)
 		obj = self.find(self.mac)
 		self.__dict__ = obj.__dict__
