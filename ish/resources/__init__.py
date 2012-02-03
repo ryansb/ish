@@ -225,6 +225,12 @@ class ImpulseObject(object):
 			results.append(obj)
 		return results
 
+	def get_constraint(self, attr):
+		try:
+			return self._constraints[attr]
+		except KeyError:
+			return ()
+
 	def configure(self):
 		#Display prompts the user for required properties
 		for prop in self.required_properties:
