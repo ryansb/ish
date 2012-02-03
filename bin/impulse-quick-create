@@ -53,11 +53,21 @@ if __name__ == "__main__":
 			dest="interface_comment", default="")
 	parser.add_option("-r", "--ip-range",
 			help="The IP range you want an IP address from", dest="ip_range")
+	parser.add_option("--dhcp-conf", "--dhcp-config",
+			help="The DHCP configuration type", dest="dhcp_config")
 
 	(options, args) = parser.parse_args()
 	system = System()
 	interface = Interface()
 	address = Address()
+
+	address.isprimary = True
+
+	if not options.dhcp_config in system.get_constraint('config'):
+		options.dhcp_config = ish_prompt("Select DHCP configuration type",
+				constraints=address.get_constraint('config'))
+
+	address.dhcp_config = options.dhcp_config
 
 	if len(args) < 1:
 		parser.print_help()
