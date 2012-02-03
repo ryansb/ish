@@ -50,6 +50,8 @@ class Address(ImpulseObject):
 		self._constraints = {
 				"config": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT config FROM dhcp.config_types;", results=True)),
+				"class": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT class FROM dhcp.classes;", results=True)),
 				}
 		return self._constraints
 
