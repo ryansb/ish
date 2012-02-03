@@ -34,38 +34,43 @@ class Address(ImpulseObject):
 	optional_properties = ('mac', 'class', 'comment')
 	removal_query = """SELECT api.remove_interface_address('%s');"""
 	# Query that removes the object
-	creation_query = ("""SELECT api.create_interface_address_manual(""" +
+	creation_query = ("""SELECT api.create_interface_address(""" +
 			"""'{mac}', '{address}', '{config}', '{klass}', '{isprimary}',""" +
 			"""'{comment}');""")  # Query to create an object
 	_constraints = None
 	mac = None  # MAC address of the interface
 	address = None
 	config = None
+	family = None
 	isprimary = False
 	comment = None  # Comment on the system (or NULL for no comment)
 
 	@property
 	def constraints(self):
 		self._constraints = {
-				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT system_name FROM systems.systems;", results=True)),
+				"config": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT config FROM dhcp.config_types;", results=True)),
 				}
 		return self._constraints
 
-	def __init__(self, mac=None, name=None, system_name=None,
-			address_class=None, comment=None):
+	def __init__(self, mac=None, name=None, family=None,
+			address_class=None, config=None, comment=None):
 		self.mac = mac
 		setattr(self, 'class', address_class)
+		if not address_class:
+			setattr(self, 'class', 'default')
 		self.name = name
-		self.system_name = system_name
+		self.family = family
+		self.config = config
 		self.comment = comment
 		self._constraints = {
-				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT system_name FROM systems.systems;", results=True)),
+				"config": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT config FROM dhcp.config_types;", results=True)),
 				}
 		ImpulseObject.__init__(self)
 
 	def put(self):
+		self.enforce_constraints()
 		try:
 			self.enforce_constraints()
 		except ValueError:
