@@ -177,6 +177,11 @@ class IPRange(ImpulseObject):
 		self.__dict__ = obj .__dict__
 		return obj
 
+	def get_available_addresses(self):
+		query = "SELECT api.get_address_from_range('%s');"
+		addr = self._conn.execute(query % self.name, results=True)[0][0]
+		return addr
+
 #class AddressRange(ImpulseObject):
 	#input_first_ip = None  # First address of the range
 	#input_last_ip = None  # Last address of the range
