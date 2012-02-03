@@ -49,6 +49,16 @@ class System(ImpulseObject):
 	_constraints = None
 
 	@property
+	def constraints(self):
+		self._constraints = {
+				"type": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT type FROM systems.device_types;", results=True)),
+				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
+						"SELECT name FROM systems.os;", results=True)),
+				}
+		return self._constraints
+
+	@property
 	def interfaces(self):
 		if self._interfaces:
 			return self._interfaces
