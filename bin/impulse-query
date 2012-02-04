@@ -39,21 +39,22 @@ OBJ_TYPES = {
 		}
 
 HEADERS = {
-    'Name': {'get': attrgetter('name'), 'length':4},
-    'Owner': {'get': attrgetter('owner'), 'length':32},
+    'Name': {'get': attrgetter('name'), 'length':16},
+    'Owner': {'get': attrgetter('owner'), 'length':16},
     'Comment': {'get': attrgetter('comment'), 'length':50},
-    'User': {'get': attrgetter('user'), 'length':15},
-    'Votes': {'get': attrgetter('votes'), 'length':5},
+    'MAC': {'get': attrgetter('mac'), 'length':18},
+    'IP': {'get': attrgetter('address'), 'length':16},
+    'Modified': {'get': attrgetter('last_modified'), 'length':11},
 }
 
 def format_object(obj, headers=('Name', 'Owner', 'Modified')):
 	"""Description: Returns a string of formatted output
 
-	Can pass in either a list of Issue objects or a single Issue
+	Can pass in either a list of ImpulseObjects or a single ImpulseObject
 
 	headers is a tuple of the headers for the formatted output
 	They are printed in order, options are:
-		ID, State, Title, Body, User, Votes
+		Name, Owner, Comment, MAC, IP, and Modified
 	"""
 	ret = ""
 	formatter_string = ''
@@ -105,4 +106,3 @@ if __name__ == "__main__":
 	else:
 		r = OBJ_TYPES[options.obj_type].search(**{options.param_name:args[0]})
 	print [s.name for s in r]
-
