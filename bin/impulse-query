@@ -85,6 +85,10 @@ if __name__ == "__main__":
 	parser.add_option("-t", "--type", help="Object type to find." +
 			" Available types: %s" % ', '.join(OBJ_TYPES.keys()), dest="obj_type")
 	parser.add_option("-p", "--param", help="Parameter name.", dest="param_name")
+	parser.add_option("-H", "--headers",
+			help="Specify headers to use as a comma-separated list. " +
+			"[ Name | Owner | Comment | MAC | IP | Modified ]", dest="headers",
+			default="Name,Owner,Modified")
 
 	(options, args) = parser.parse_args()
 
