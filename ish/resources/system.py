@@ -59,6 +59,10 @@ class System(ImpulseObject):
 		return self._constraints
 
 	@property
+	def name(self):
+		return self.system_name
+
+	@property
 	def interfaces(self):
 		if self._interfaces:
 			return self._interfaces
