@@ -23,3 +23,86 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ish import __version__
+from optparse import OptionParser
+from ish.resources.system import System
+from ish.resources.address import Address
+from ish.resources.address import IPRange
+from ish.resources.system import Interface
+from operator import attrgetter
+
+OBJ_TYPES = {
+		'system': System,
+		'interface': Interface,
+		'address': Address,
+		'iprange': IPRange
+		}
+
+HEADERS = {
+    'Name': {'get': attrgetter('name'), 'length':4},
+    'Owner': {'get': attrgetter('owner'), 'length':32},
+    'Comment': {'get': attrgetter('comment'), 'length':50},
+    'User': {'get': attrgetter('user'), 'length':15},
+    'Votes': {'get': attrgetter('votes'), 'length':5},
+}
+
+def format_object(obj, headers=('Name', 'Owner', 'Modified')):
+	"""Description: Returns a string of formatted output
+
+	Can pass in either a list of Issue objects or a single Issue
+
+	headers is a tuple of the headers for the formatted output
+	They are printed in order, options are:
+		ID, State, Title, Body, User, Votes
+	"""
+	ret = ""
+	formatter_string = ''
+
+	if not isinstance(obj, list):
+		obj = [obj, ]
+
+	for h in headers:
+		formatter_string += "%%-%ds" % HEADERS[h]['length']
+	ret += formatter_string % headers
+	ret += '\n'
+	ret += "-" * len(formatter_string % headers)
+	ret += '\n'
+
+	for i in obj:
+		ret_list = []
+		for h in headers:
+			t = unicode(HEADERS[h]['get'](i)) + ''
+			if len(t) > HEADERS[h]['length']:
+				t = t[:HEADERS[h]['length']-3] + '...'
+			ret_list.append(t)
+		ret += (formatter_string % tuple(ret_list)) + '\n'
+	return ret
+
+if __name__ == "__main__":
+	parser = OptionParser(version=__version__,
+			usage="%prog [options] system_name")
+	parser.add_option("-t", "--type", help="Object type to find." +
+			" Available types: %s" % ', '.join(OBJ_TYPES.keys()), dest="obj_type")
+	parser.add_option("-p", "--param", help="Parameter name.", dest="param_name")
+
+	(options, args) = parser.parse_args()
+
+	if not options.param_name and len(args) == 1:
+		print "Need a parameter name and parameter to search for."
+		parser.print_help()
+		exit()
+
+	if not (options.obj_type in OBJ_TYPES.keys()) and options.obj_type:
+		print "Did not specify a valid object type to return"
+		print "Valid choices are:\n%s" % '\n'.join(OBJ_TYPES.keys())
+		parser.print_help()
+		exit()
+
+	if not options.obj_type:
+		pass
+	elif OBJ_TYPES[options.obj_type].pkey == options.param_name:
+		r = OBJ_TYPES[options.obj_type].find(args[0])
+	else:
+		r = OBJ_TYPES[options.obj_type].search(**{options.param_name:args[0]})
+	print [s.name for s in r]
+
