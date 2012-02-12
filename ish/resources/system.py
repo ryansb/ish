@@ -48,6 +48,7 @@ class System(ImpulseObject):
 	comment = None  # Comment on the system (or NULL for no comment)
 	_constraints = None
 	_address = None
+	_mac = None
 
 	@property
 	def constraints(self):
@@ -68,7 +69,18 @@ class System(ImpulseObject):
 		if self._address:
 			return self._address
 		try:
-			return self.interfaces[0].addresses[0].address
+			self._address = self.interfaces[0].addresses[0].address
+			return self._address
+		except IndexError:
+			return ''
+
+	@property
+	def mac(self):
+		if self._mac:
+			return self._mac
+		try:
+			self._mac = self.interfaces[0].mac
+			return self._mac
 		except IndexError:
 			return ''
 
