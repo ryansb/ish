@@ -47,6 +47,7 @@ class System(ImpulseObject):
 	os_name = None  # Primary operating system
 	comment = None  # Comment on the system (or NULL for no comment)
 	_constraints = None
+	_address = None
 
 	@property
 	def constraints(self):
@@ -61,6 +62,15 @@ class System(ImpulseObject):
 	@property
 	def name(self):
 		return self.system_name
+
+	@property
+	def address(self):
+		if self._address:
+			return self._address
+		try:
+			return self.interfaces[0].addresses[0].address
+		except IndexError:
+			return ''
 
 	@property
 	def interfaces(self):
