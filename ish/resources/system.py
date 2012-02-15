@@ -28,6 +28,19 @@ from ish.resources.address import Address
 
 
 class System(ImpulseObject):
+	"""
+	Description: A System object, represents a system in Impulse
+	Required properties (to be successfully saved):
+		system_name: the name of the system (must be DNS-safe)
+		type: The system type for a full list try System.get_constraint('type')
+			Some valid ones are: Laptop, Server, Desktop, Firewall, Switch, etc...
+		os_name: The name of the operating system, again, System.get_constraint
+			is your friend
+			Some valid ones: Windows 7, Fedora, Debian, Arch, Slackware, and Solaris
+
+	A system has several other handy attributes
+	"""
+
 	__metaclass__ = ImmutabilityMeta
 	pkey = "system_name"  # What parameter does the deletion query require?
 	table_name = 'systems'
@@ -66,6 +79,19 @@ class System(ImpulseObject):
 
 	@property
 	def address(self):
+		"""
+		Description: Calculated property based on the first address of the first
+		interface. To get all addresses assigned to a system, do this instead:
+
+			system = System.find('your_system')
+			#A system can have many interfaces, loop through them
+			for interface in system.interfaces:
+					#since an interface can have many addresses, loop through those as
+					well
+				for address_object in interface.addresses:
+					print address_object.address
+		"""
+
 		if self._address:
 			return self._address
 		try:
@@ -73,9 +99,20 @@ class System(ImpulseObject):
 			return self._address
 		except IndexError:
 			return ''
+		except TypeError:
+			return ''
 
 	@property
 	def mac(self):
+		"""
+		Description: Calculated property based on the MAC address of the first
+		interface on the machine, to get all MAC addresses of interfaces on this
+		system you must loop through all interfaces, or get a list of them like
+		so:
+			system = System.find('your_system')
+			all_mac_addresses = [interface.mac for interface in system.interfaces]
+		"""
+
 		if self._mac:
 			return self._mac
 		try:
@@ -83,9 +120,16 @@ class System(ImpulseObject):
 			return self._mac
 		except IndexError:
 			return ''
+		except TypeError:
+			return ''
 
 	@property
 	def interfaces(self):
+		"""
+		Description: Calculated property that returns a list of all interfaces
+		associated with this system. If there are no interfaces, this value is a
+		NoneType
+		"""
 		if self._interfaces:
 			return self._interfaces
 		self._interfaces = Interface.search(system_name=self.system_name)
@@ -110,6 +154,11 @@ class System(ImpulseObject):
 			self._interfaces.extend(value)
 
 	def __init__(self, name=None, sys_type=None, osname=None, comment=None):
+		"""
+		Description: The constructor for System. Passing in parameters is
+		allowed, but not required. Properties are only required when System.put()
+		is used, as that is when the object is stored in the Impulse database
+		"""
 		self.system_name = name
 		self.type = sys_type
 		self.os_name = osname

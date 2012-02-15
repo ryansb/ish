@@ -96,9 +96,14 @@ class DBConnection(object):
 
 class ImmutabilityMeta(type):
 	"""A metaclass to prevent the alteration of certain key attributes that
-	users shouldn't mess with anyways"""
+	shouldn't be messed with."""
 
 	def __setattr__(cls, name, value):
+		"""
+		Description: Override the setattr method on any inheriting classes such
+		that certain properties cannot be altered, because that would break
+		stuff.
+		"""
 		immutables = ('table_name', 'schema_name', 'required_properties',
 				'optional_properties', 'pkey', 'removal_query', 'creation_query')
 		if name in immutables:
@@ -106,6 +111,11 @@ class ImmutabilityMeta(type):
 		return type.__setattr__(cls, name, value)
 
 	def __delattr__(cls, name):
+		"""
+		Description: Override the delattr method on any inheriting classes such
+		that certain properties cannot be deleted, because that would break
+		stuff.
+		"""
 		immutables = ('table_name', 'schema_name', 'required_properties',
 				'optional_properties', 'pkey', 'removal_query', 'creation_query')
 		if name in immutables:
@@ -118,9 +128,21 @@ class ImpulseObject(object):
 	__metaclass__ = ImmutabilityMeta
 
 	def __init__(self):
-		pass
+		"""
+		Description: Parent Impulse Object, all other objects inherit from this
+		one and it provides things like immutable attributes, the put() method,
+		and the find() and search() methods. There should never be a reason to
+		instantiate a plain ImpulseObject, as it can't actually do anything on
+		its own.
+		"""
+		if str(self.__class__) == "<class 'ish.resources.ImpulseObject'>":
+			raise NotImplementedError("This is a parent class.")
 
 	def remove(self, debug=False):
+		"""
+		Description: Delete this object from the database.
+		This operation is not undoable, period. Be careful
+		"""
 		#run this query on the db
 		query = self.removal_query % (self.__dict__[self.pkey])
 		if debug:
@@ -158,6 +180,17 @@ class ImpulseObject(object):
 
 	@classmethod
 	def all(cls):
+		"""
+		Description: Get every single object of a given type. This is a
+		generator ( http://docs.python.org/tutorial/classes.html#generators ) and
+		should be used like this:
+			all_systems = System.all()
+			first_system = s.next()
+
+		When a generator has run out of items, it raises a StopIteration error.
+		Using a generator is much faster that returning a (potentially large)
+		list containing all of a particular type of object.
+		"""
 		if isinstance(cls, ImpulseObject):
 			raise NotImplementedError("Can't run this on a generic" +
 					" ImpulseObject.")
@@ -175,15 +208,13 @@ class ImpulseObject(object):
 		res = cls._conn.execute(obj_query % (cls.schema_name, cls.table_name),
 				results=True)
 		if not res:
-			return None
+			raise Exception("No results for query %s" % obj_query)
 
-		results = []
 		for item in res:
 			obj = cls()
 			for col, val in zip(columns, item):
 				obj.__dict__[col] = val
-			results.append(obj)
-		return results
+			yield obj
 
 	@classmethod
 	def search(cls, **kwargs):
@@ -191,6 +222,8 @@ class ImpulseObject(object):
 		keys
 
 		For example: object.search(owner=some1, type=atype)
+
+		It is possible to specify many parameters, as long as they are all valid
 		"""
 		if len(kwargs.items()) < 1:
 			raise Exception("This function requires search parameters")
@@ -226,12 +259,23 @@ class ImpulseObject(object):
 		return results
 
 	def get_constraint(self, attr):
+		"""
+		Description: Get all allowed values for a particular attribute. Great for
+		if you need to present all those options to a user, or are just curious
+		yourself. Used because hardcoding most values is not feasible, such as
+		valid usernames.
+		"""
 		try:
 			return self._constraints[attr]
 		except KeyError:
 			return ()
 
 	def configure(self):
+		"""
+		Description: Creates a series of prompts asking for values, and specifies
+		which are optional and which are not. Only use in places where user has
+		the ability to get data to STDIN.
+		"""
 		#Display prompts the user for required properties
 		for prop in self.required_properties:
 			if prop in self._constraints:
@@ -251,6 +295,11 @@ class ImpulseObject(object):
 						prop, required=False)
 
 	def enforce_constraints(self):
+		"""
+		Description: Enforce all constraints on properties that have them. If a
+		value is not within the given constraints, then a ValueError exception is
+		raised. It is good to check this before saving an object to the database.
+		"""
 		for key in list(set(self._constraints.keys()) &
 				set(self.__dict__.keys())):
 			if self.__dict__[key] not in self._constraints[key]:
