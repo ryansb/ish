@@ -31,6 +31,12 @@ class ConnectionSingleton(object):
 	_db_conn = None
 
 	def __init__(self):
+		"""
+		Description: A singleton to manage database connection.
+
+		It reads authentication information from the Impulse Shell configuration
+		file, which is located in /etc/ish.cfg
+		"""
 		super(ConnectionSingleton, self).__init__()
 
 	@property
@@ -57,6 +63,9 @@ class ConnectionSingleton(object):
 
 class DBConnection(object):
 	def __init__(self, dbname, uname, passwd, host, port):
+		"""
+		Description: A connection to PGSQL to run queries on.
+		"""
 		import psycopg2
 		self.dbname = dbname
 		self.uname = uname
@@ -67,6 +76,11 @@ class DBConnection(object):
 				password=passwd, host=host, port=port)
 
 	def api_query(self, query, results=False):
+		"""
+		Description: Run a query on the PGSQL connection. By default, no results
+		are returned. If results are desired/needed then be sure to call as:
+			api_query(query, results=True)
+		"""
 		try:
 			if self.connection.closed:
 				import psycopg2

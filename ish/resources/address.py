@@ -26,6 +26,10 @@ from ish.resources import ImpulseObject, ImmutabilityMeta
 
 
 class Address(ImpulseObject):
+	"""
+	Description: The Address object, contains an address, what DNS family the
+	address is in, and how the address is assigned (static, dhcp, etc.)
+	"""
 	__metaclass__ = ImmutabilityMeta
 	pkey = "address"  # What parameter does the deletion query require?
 	table_name = "interface_addresses"
@@ -57,6 +61,9 @@ class Address(ImpulseObject):
 
 	def __init__(self, mac=None, name=None, family=None,
 			address_class=None, config=None, comment=None):
+		"""
+		Description: Create an Address object, can accept arguments or not
+		"""
 		self.mac = mac
 		setattr(self, 'class', address_class)
 		if not address_class:
@@ -72,6 +79,9 @@ class Address(ImpulseObject):
 		ImpulseObject.__init__(self)
 
 	def put(self):
+		"""
+		Description: Save the Address object to the Impulse database
+		"""
 		self.enforce_constraints()
 		try:
 			self.enforce_constraints()
@@ -89,6 +99,9 @@ class Address(ImpulseObject):
 
 
 class Subnet(ImpulseObject):
+	"""
+	Description: A Subnet object, including the address range
+	"""
 	__metaclass__ = ImmutabilityMeta
 	pkey = "subnet"  # What parameter does the deletion query require?
 	table_name = "subnets"
@@ -113,6 +126,11 @@ class Subnet(ImpulseObject):
 
 	@property
 	def constraints(self):
+		"""
+		Description: Return a dict of all the constraints for a given object
+		"""
+		if self._constraints:
+			return self._constraints
 		self._constraints = {
 				"autogen": ('TRUE', 'FALSE'),
 				"dhcp": ('TRUE', 'FALSE'),
@@ -135,6 +153,9 @@ class Subnet(ImpulseObject):
 		ImpulseObject.__init__(self)
 
 	def put(self):
+		"""
+		Description: Save this object to the Impulse database
+		"""
 		try:
 			self.enforce_constraints()
 		except ValueError:
@@ -152,6 +173,11 @@ class Subnet(ImpulseObject):
 
 
 class IPRange(ImpulseObject):
+	"""
+	Description: an IPRange object, which only contains a first and last IP,
+	along with their subnet and a description of what they are intended to be
+	used for.
+	"""
 	__metaclass__ = ImmutabilityMeta
 	pkey = "name"  # What parameter does the deletion query require?
 	table_name = "ranges"

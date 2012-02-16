@@ -65,6 +65,11 @@ class System(ImpulseObject):
 
 	@property
 	def constraints(self):
+		"""
+		Description: Return a dict of all the constraints for a given object
+		"""
+		if self._constraints:
+			return self._constraints
 		self._constraints = {
 				"type": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT type FROM systems.device_types;", results=True)),
@@ -183,10 +188,12 @@ class System(ImpulseObject):
 			self.create()
 
 	def put(self):
-		if not (self.system_name and self.owner and self.type and self.os_name):
-			print (("Missing Parameter.\nSystem name: %s\nOwner: %s\n"
-					+ "System type: %s\nOS: %s")
-					% (self.system_name, self.owner, self.type, self.os_name))
+		"""
+		Description: Save the System up to the Impulse database.
+		"""
+		try:
+			self.enforce_constraints()
+		except ValueError:
 			return False
 		if not self.comment:
 			self.comment = "NULL"
@@ -220,6 +227,9 @@ class Interface(ImpulseObject):
 
 	@property
 	def constraints(self):
+		"""
+		Description: Return a dict of all the constraints for a given object
+		"""
 		self._constraints = {
 				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT system_name FROM systems.systems;", results=True)),
@@ -263,6 +273,9 @@ class Interface(ImpulseObject):
 		ImpulseObject.__init__(self)
 
 	def put(self):
+		"""
+		Description: Save the System up to the Impulse database.
+		"""
 		try:
 			self.enforce_constraints()
 		except ValueError:
