@@ -30,38 +30,41 @@ from ish import auth
 from pkg_resources import resource_listdir
 
 OBJS = []
+FUNCS = []
 current_user = None
 
 
-class Ls(object):
-	def __repr__(self):
-		return self.__call__()
-
-	def __call__(self):
-		return "\n".join(OBJS)
-
-
-class Auth(object):
-	def __repr__(self):
-		return self.__call__()
-
-	def __call__(self):
-		return auth()
+def ls():
+	"""
+	Description: Displays all loaded classes and functions
+	Usage: Functions are Python functions, and can be run like so:
+		ls()
+		help(ls)
+		auth()
+	"""
+	print "Objects:\n", "\n".join(OBJS)
+	print "\nFunctions:\n", "\n".join(FUNCS)
 
 
-class QuickCreate(object):
-	def __repr__(self):
-		return self.__call__()
-
-	def __call__(self):
-		system = System()
-		system.configure()
-		return system
+def quick_create():
+	"""
+	Description: Does the quick-create function for a system. This includes the
+	configuration of a main system interface and an address for that interface.
+	Mirrors the functionality available in the web interface.
+	Usage:
+		>>> quick_create()
+		Value for system_name: <input name of system>
+		etc...
+	"""
+	system = System()
+	system.configure()
+	return system
 
 
 if __name__ == "__main__":
 	#do something about logging sometime
-	from ish.resources.system import System
+	from ish.resources.system import System, Interface
+	from ish.resources.address import Address, Subnet, IPRange
 	import code
 	import readline
 	local = {}
@@ -73,13 +76,21 @@ if __name__ == "__main__":
 			if m != "__init__":
 				__import__("ish.resources.%s" % m)
 
-	OBJS = local.keys()
-	local["ls"] = Ls()
-	local["quick_create"] = QuickCreate()
-	local["auth"] = Auth()
-	local["system"] = System
-	welcome = """Impulse Shell
+	OBJS = ['System', 'Address', 'Interface', 'Subnet', 'IPRange']
+	FUNCS = ['ls', 'auth', 'quick_create']
+	local = {
+			'ls': ls,
+			'auth': auth,
+			'quick_create': quick_create,
+			'System': System,
+			'Address': Address,
+			'Interface': Interface,
+			'Subnet': Subnet,
+			'IPRange': IPRange
+			}
+	welcome = """Welcome to Impulse Shell
 Use Ctrl+D to exit
-ls prints all loaded classes
-auth attempts to authenticate against kerberos credentials"""
+ls() prints all loaded classes
+auth() checks validity of Kerberos credentials
+Use help(<object_name>) for example usage/functionality descriptions"""
 	code.interact(banner=welcome, local=local)
