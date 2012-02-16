@@ -51,6 +51,11 @@ class Address(ImpulseObject):
 
 	@property
 	def constraints(self):
+		"""
+		Description: Return a dict of all the constraints for a given object
+		"""
+		if self._constraints:
+			return self._constraints
 		self._constraints = {
 				"config": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT config FROM dhcp.config_types;", results=True)),
