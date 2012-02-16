@@ -223,6 +223,9 @@ class IPRange(ImpulseObject):
 		ImpulseObject.__init__(self)
 
 	def put(self):
+		"""
+		Description: Save the IPRange object to the Impulse database
+		"""
 		try:
 			self.enforce_constraints()
 		except ValueError:
@@ -246,7 +249,6 @@ class IPRange(ImpulseObject):
 		query = "SELECT api.get_address_from_range('%s');"
 		# If there are no unused addresses, this will throw an ImpulseError
 		addr = self._conn.execute(query % self.name, results=True)[0][0]
-
 		return addr
 
 #class AddressRange(ImpulseObject):
