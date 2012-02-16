@@ -144,6 +144,9 @@ class Subnet(ImpulseObject):
 
 	def __init__(self, subnet=None, name=None, comment=None, autogen=None,
 			dhcp=None, zone=None, owner=None):
+		"""
+		Description: Create a Subnet object, can accept arguments or not
+		"""
 		self.subnet = subnet
 		self.name = name
 		self.comment = comment
@@ -206,6 +209,10 @@ class IPRange(ImpulseObject):
 
 	def __init__(self, name=None, first_ip=None, last_ip=None, subnet=None,
 			use=None, inp_class=None, comment=None):
+		"""
+		Description: Instantiate an IPRange object, does not require parameters
+		to be given.
+		"""
 		self.name = name
 		self.first_ip = first_ip
 		self.last_ip = last_ip
@@ -232,8 +239,14 @@ class IPRange(ImpulseObject):
 		return obj
 
 	def get_unused_address(self):
+		"""
+		Description: Returns the first unused address in a given IPRange. If
+		there is no unused address, raises ImpulseError.
+		"""
 		query = "SELECT api.get_address_from_range('%s');"
+		# If there are no unused addresses, this will throw an ImpulseError
 		addr = self._conn.execute(query % self.name, results=True)[0][0]
+
 		return addr
 
 #class AddressRange(ImpulseObject):
