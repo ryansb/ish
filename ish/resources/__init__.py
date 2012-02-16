@@ -25,6 +25,17 @@
 from ish import ish_prompt
 from ish import get_username
 from ish import CONFIG_LOCATION
+from psycopg2 import InternalError
+
+
+class ImpulseDBError(Exception):
+	"""
+	Description: Raised whenever an Impulse query is rejected, typically because
+	some data does not validate.
+	"""
+	def __init__(self, message):
+		# Call the base class constructor with the parameters it needs
+		Exception.__init__(self, message)
 
 
 class ConnectionSingleton(object):
@@ -56,9 +67,10 @@ class ConnectionSingleton(object):
 	def execute(self, query, results=False):
 		try:
 			return self.db_conn.api_query(query, results)
-		except Exception:
+		except InternalError, e:
+			raise ImpulseDBError(e.message)
+		finally:
 			self._db_conn = None
-		return self.db_conn.api_query(query, results)
 
 
 class DBConnection(object):
