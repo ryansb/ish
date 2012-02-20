@@ -44,7 +44,7 @@ HEADERS = {
     'Comment': {'get': attrgetter('comment'), 'length':50},
     'MAC': {'get': attrgetter('mac'), 'length':20},
     'IP': {'get': attrgetter('address'), 'length':18},
-    'Modified': {'get': attrgetter('date_modified'), 'length':13},
+    'Modified': {'get': attrgetter('formatted_date_modified'), 'length':13},
 }
 
 def format_object(obj, headers=('Name', 'Owner', 'Modified')):

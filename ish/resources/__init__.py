@@ -332,6 +332,13 @@ class ImpulseObject(object):
 				raise ValueError("Value '%s' is not within constraints for'%s'" %
 						(self.__dict__[key], key))
 
+	@property
+	def formatted_date_modified(self):
+		from datetime import datetime
+		if self.date_modified.strftime("%D") == datetime.now().strftime("%D"):
+			return self.date_modified.strftime("%H:%M")
+		return self.date_modified.strftime("%Y-%m-%d")
+
 	def __repr__(self):
 		if self.name:
 			return self.name
