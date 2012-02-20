@@ -331,3 +331,9 @@ class ImpulseObject(object):
 			if self.__dict__[key] not in self._constraints[key]:
 				raise ValueError("Value '%s' is not within constraints for'%s'" %
 						(self.__dict__[key], key))
+
+	def __repr__(self):
+		if self.name:
+			return self.name
+		else:
+			return object.__repr__(self)
