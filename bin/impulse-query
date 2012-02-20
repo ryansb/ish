@@ -105,13 +105,16 @@ if __name__ == "__main__":
 		parser.print_help()
 		exit()
 
-	if not options.obj_type:
-		pass
-	elif OBJ_TYPES[options.obj_type].pkey == options.param_name:
-		r = OBJ_TYPES[options.obj_type].find(args[0])
-	else:
-		r = OBJ_TYPES[options.obj_type].search(**{options.param_name:args[0]})
-	if not r:
-		print "No results"
-		exit()
+	try:
+		if not options.obj_type:
+			pass
+		elif OBJ_TYPES[options.obj_type].pkey == options.param_name:
+			r = OBJ_TYPES[options.obj_type].find(args[0])
+		else:
+			r = OBJ_TYPES[options.obj_type].search(**{options.param_name:args[0]})
+		if not r:
+			print "No results"
+			exit()
+	except IndexError:
+		r = list(OBJ_TYPES[options.obj_type].all())
 	print format_object(r, tuple(options.headers.split(',')))
