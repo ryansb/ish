@@ -23,8 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__version__ = '0.1'
-CONFIG_LOCATION = "conf/ish.cfg"
+__version__ = '0.2'
+CONFIG_LOCATION = "/etc/ish.cfg"
 
 
 def auth_info():
