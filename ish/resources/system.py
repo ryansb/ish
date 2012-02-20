@@ -88,13 +88,12 @@ class System(ImpulseObject):
 		Description: Calculated property based on the first address of the first
 		interface. To get all addresses assigned to a system, do this instead:
 
-			system = System.find('your_system')
-			#A system can have many interfaces, loop through them
-			for interface in system.interfaces:
-					#since an interface can have many addresses, loop through those as
-					well
-				for address_object in interface.addresses:
-					print address_object.address
+		system = System.find('your_system')
+		#A system can have many interfaces, loop through them
+		for interface in system.interfaces:
+			#since an interface can have many addresses, loop through those too
+			for address_object in interface.addresses:
+				print address_object.address
 		"""
 
 		if self._address:

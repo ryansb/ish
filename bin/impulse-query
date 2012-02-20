@@ -81,7 +81,9 @@ def format_object(obj, headers=('Name', 'Owner', 'Modified')):
 
 if __name__ == "__main__":
 	parser = OptionParser(version=__version__,
-			usage="%prog [options] system_name")
+			usage="%prog -t <object type> [-p <param> <param value>]\n" +
+			"If no params are given, it will list every object of that type. " +
+			"This may take some time.")
 	parser.add_option("-t", "--type", help="Object type to find." +
 			" Available types: %s" % ', '.join(OBJ_TYPES.keys()), dest="obj_type")
 	parser.add_option("-p", "--param", help="Parameter name.", dest="param_name")
