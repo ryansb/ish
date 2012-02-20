@@ -22,7 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from ish.resources import ImpulseObject, ImmutabilityMeta
+from ish.resources import ImpulseObject, ImmutabilityMeta, ConstraintRetriever
 
 
 class Address(ImpulseObject):
@@ -62,7 +62,7 @@ class Address(ImpulseObject):
 			return self._constraints[classname]
 		except KeyError:
 			pass
-		self._constraints = {
+		self._constraints[classname] = {
 				"config": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT config FROM dhcp.config_types;", results=True)),
 				"class": reduce(lambda a, b: a + b, self._conn.execute(
@@ -83,10 +83,7 @@ class Address(ImpulseObject):
 		self.family = family
 		self.config = config
 		self.comment = comment
-		self._constraints = {
-				"config": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT config FROM dhcp.config_types;", results=True)),
-				}
+		self.constraints
 		ImpulseObject.__init__(self)
 
 	def put(self):
@@ -166,10 +163,7 @@ class Subnet(ImpulseObject):
 		self.dhcp = dhcp
 		self.zone = zone
 		self.owner = owner
-		self._constraints = {
-				"autogen": ('TRUE', 'FALSE'),
-				"dhcp": ('TRUE', 'FALSE'),
-				}
+		self.constraints
 		ImpulseObject.__init__(self)
 
 	def put(self):

@@ -264,10 +264,7 @@ class Interface(ImpulseObject):
 		self.name = name
 		self.system_name = system_name
 		self.comment = comment
-		self._constraints = {
-				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT system_name FROM systems.systems;", results=True)),
-				}
+		self.constraints
 		ImpulseObject.__init__(self)
 
 	def put(self):
