@@ -120,6 +120,30 @@ class DBConnection(object):
 			return ret
 
 
+def singleton(cls):
+	"""
+	A decorator to make a class into a singleton.
+
+	When a class is wrapped in this decorator, this decorator will always make
+	any calls on that class (or an instance of it) goes to the same instance of
+	a given class.
+
+	See PEP 318 for clarification.
+	http://www.python.org/dev/peps/pep-0318/#examples
+	"""
+	instances = {}
+	def getinstance():
+		if cls not in instances:
+			instances[cls] = cls()
+		return instances[cls]
+	return getinstance
+
+
+@singleton
+class ConstraintRetriever(dict):
+	pass
+
+
 class ImmutabilityMeta(type):
 	"""A metaclass to prevent the alteration of certain key attributes that
 	shouldn't be messed with."""
@@ -292,7 +316,8 @@ class ImpulseObject(object):
 		valid usernames.
 		"""
 		try:
-			return self._constraints[attr]
+			classname = str(self.__class__).split("'")[1].split('.')[-1]
+			return self._constraints[classname][attr]
 		except KeyError:
 			return ()
 
@@ -302,20 +327,21 @@ class ImpulseObject(object):
 		which are optional and which are not. Only use in places where user has
 		the ability to get data to STDIN.
 		"""
+		classname = str(self.__class__).split("'")[1].split('.')[-1]
 		#Display prompts the user for required properties
 		for prop in self.required_properties:
-			if prop in self._constraints:
+			if prop in self._constraints[classname]:
 				self.__dict__[prop] = ish_prompt("Value for %s" % prop,
-						required=True, constraints=self._constraints[prop])
+						required=True, constraints=self._constraints[classname][prop])
 			else:
-				self.__dict__[prop] = ish_prompt("Value for %s" % prop,
+				self.__dict__[classname][prop] = ish_prompt("Value for %s" % prop,
 						required=True)
 
 		#Display prompts the user for optional properties
 		for prop in self.optional_properties:
-			if prop in self._constraints:
+			if prop in self._constraints[classname]:
 				self.__dict__[prop] = ish_prompt("Value for optional property %s" %
-						prop, required=False, constraints=self._constraints[prop])
+						prop, required=False, constraints=self._constraints[classname][prop])
 			else:
 				self.__dict__[prop] = ish_prompt("Value for optional property %s" %
 						prop, required=False)
@@ -326,9 +352,10 @@ class ImpulseObject(object):
 		value is not within the given constraints, then a ValueError exception is
 		raised. It is good to check this before saving an object to the database.
 		"""
-		for key in list(set(self._constraints.keys()) &
+		classname = str(self.__class__).split("'")[1].split('.')[-1]
+		for key in list(set(self._constraints[classname].keys()) &
 				set(self.__dict__.keys())):
-			if self.__dict__[key] not in self._constraints[key]:
+			if self.__dict__[key] not in self._constraints[classname][key]:
 				raise ValueError("Value '%s' is not within constraints for'%s'" %
 						(self.__dict__[key], key))
 

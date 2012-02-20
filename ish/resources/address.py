@@ -49,20 +49,26 @@ class Address(ImpulseObject):
 	isprimary = False
 	comment = None  # Comment on the system (or NULL for no comment)
 
+
 	@property
 	def constraints(self):
 		"""
 		Description: Return a dict of all the constraints for a given object
 		"""
-		if self._constraints:
-			return self._constraints
+		classname = str(self.__class__).split("'")[1].split('.')[-1]
+		if not self._constraints:
+			self._constraints = ConstraintRetriever()
+		try:
+			return self._constraints[classname]
+		except KeyError:
+			pass
 		self._constraints = {
 				"config": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT config FROM dhcp.config_types;", results=True)),
 				"class": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT class FROM dhcp.classes;", results=True)),
 				}
-		return self._constraints
+		return self._constraints[classname]
 
 	def __init__(self, mac=None, name=None, family=None,
 			address_class=None, config=None, comment=None):
@@ -129,18 +135,24 @@ class Subnet(ImpulseObject):
 	zone = None  # DNS zone to associate with this subnet
 	owner = None  # The owner of the subnet (or NULL for current user)
 
+
 	@property
 	def constraints(self):
 		"""
 		Description: Return a dict of all the constraints for a given object
 		"""
-		if self._constraints:
-			return self._constraints
-		self._constraints = {
+		classname = str(self.__class__).split("'")[1].split('.')[-1]
+		if not self._constraints:
+			self._constraints = ConstraintRetriever()
+		try:
+			return self._constraints[classname]
+		except KeyError:
+			pass
+		self._constraints[classname] = {
 				"autogen": ('TRUE', 'FALSE'),
 				"dhcp": ('TRUE', 'FALSE'),
 				}
-		return self._constraints
+		return self._constraints[classname]
 
 	def __init__(self, subnet=None, name=None, comment=None, autogen=None,
 			dhcp=None, zone=None, owner=None):

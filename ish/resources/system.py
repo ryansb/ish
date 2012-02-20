@@ -23,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from ish import get_username
-from ish.resources import ImpulseObject, ImmutabilityMeta
+from ish.resources import ImpulseObject, ImmutabilityMeta, ConstraintRetriever
 from ish.resources.address import Address
 
 
@@ -68,15 +68,20 @@ class System(ImpulseObject):
 		"""
 		Description: Return a dict of all the constraints for a given object
 		"""
-		if self._constraints:
-			return self._constraints
-		self._constraints = {
+		classname = str(self.__class__).split("'")[1].split('.')[-1]
+		if not self._constraints:
+			self._constraints = ConstraintRetriever()
+		try:
+			return self._constraints[classname]
+		except KeyError:
+			pass
+		self._constraints[classname] = {
 				"type": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT type FROM systems.device_types;", results=True)),
 				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
 						"SELECT name FROM systems.os;", results=True)),
 				}
-		return self._constraints
+		return self._constraints[classname]
 
 	@property
 	def name(self):
@@ -168,20 +173,7 @@ class System(ImpulseObject):
 		self.os_name = osname
 		self.comment = comment
 		self.owner = get_username()
-		self._constraints = {
-				#This line grabs all the constraints on the system type and stores
-				#them as a tuple, so we can check them later with:
-				#for k, v in self._constraints.items():
-				#	if k in self.__dict__.keys()
-				#		if not self.__dict__[k] in self._constraints[k]:
-				#			raise "Value not within constraints"
-				"type": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT type FROM systems.device_types;", results=True)),
-				"os_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT name FROM systems.os;", results=True)),
-				#"owner":reduce(lambda a, b: a + b, self._conn.execute(
-						#"SELECT name FROM users.users;", results=True)),
-				}
+		self.constraints
 		ImpulseObject.__init__(self)
 		if name and self.type and osname:
 			self.create()
@@ -229,11 +221,18 @@ class Interface(ImpulseObject):
 		"""
 		Description: Return a dict of all the constraints for a given object
 		"""
-		self._constraints = {
+		classname = str(self.__class__).split("'")[1].split('.')[-1]
+		if not self._constraints:
+			self._constraints = ConstraintRetriever()
+		try:
+			return self._constraints[classname]
+		except KeyError:
+			pass
+		self._constraints[classname] = {
 				"system_name": reduce(lambda a, b: a + b, self._conn.execute(
-						"SELECT system_name FROM systems.systems;", results=True)),
+					"SELECT system_name FROM systems.systems;", results=True)),
 				}
-		return self._constraints
+		return self._constraints[classname]
 
 	@property
 	def addresses(self):
