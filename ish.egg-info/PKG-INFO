@@ -1,15 +1,16 @@
 Metadata-Version: 1.0
 Name: ish
-Version: 0.3
+Version: 0.4
 Summary: Impulse Shell
-Home-page: https://
+Home-page: https://github.com/ryansb/ish
 Author: Ryan Brown
 Author-email: ryansb@csh.rit.edu
 License: MIT
 Description: A shell to access Cohoe's Impulse registration system ( https://github.com/cohoe/impulse )
+Keywords: Impulse Shell,ish,impulse-shell,system registration,csh
 Platform: Posix; MacOS X
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Classifier: Topic :: Internet
+Classifier: Programming Language :: Python

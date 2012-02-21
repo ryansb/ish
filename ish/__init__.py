@@ -23,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__version__ = '0.3'
+__version__ = '0.4'
 CONFIG_LOCATION = "/etc/ish.cfg"
 
 
