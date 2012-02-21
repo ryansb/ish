@@ -62,6 +62,19 @@ def format_object(obj, headers=('Name', 'Owner', 'Modified')):
 	if not isinstance(obj, list):
 		obj = [obj, ]
 
+	def exists(o, h):
+		"""
+		Try to pull out a specified attribute from an object.
+		Returns True if successful, False if AttributeError
+		"""
+		try:
+			HEADERS[h]['get'](o)
+			return True
+		except AttributeError:
+			return False
+
+	headers = filter(lambda h: exists(obj[0], h), headers)
+
 	for h in headers:
 		formatter_string += "%%-%ds" % HEADERS[h]['length']
 	ret += formatter_string % headers
