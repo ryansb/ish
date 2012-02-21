@@ -1,10 +1,13 @@
 setup.py
+bin/impulse-query
+bin/impulse-quick-create
+bin/ipy-ish
 bin/ish
-bin/shell.py
 ish/__init__.py
 ish.egg-info/PKG-INFO
 ish.egg-info/SOURCES.txt
 ish.egg-info/dependency_links.txt
+ish.egg-info/requires.txt
 ish.egg-info/top_level.txt
 ish/resources/__init__.py
 ish/resources/address.py
@@ -14,4 +17,3 @@ ish/resources/firewall.py
 ish/resources/network.py
 ish/resources/segment.py
 ish/resources/system.py
-ish/resources/user.py
