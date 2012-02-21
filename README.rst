@@ -8,14 +8,14 @@ About
 Impulse Shell is the command-line interface for Impulse_ and is intended to
 allow easy programmatic actions on systems in Impulse.
 
-.. _https://github.com/cohoe/impulse
+.. _Impulse: https://github.com/cohoe/impulse
 
 The shell portion of ish is a modified Python shell, so it's possible to use
 normal Python programming constructs like for, if, and list interpretations.
 
 This README is written in ReST_.
 
-.. _http://docutils.sourceforge.net/docs/user/rst/quickref.html
+.. _ReST: http://docutils.sourceforge.net/docs/user/rst/quickref.html
 
 =======
 Commands
