@@ -155,7 +155,7 @@ class ImmutabilityMeta(type):
 		stuff.
 		"""
 		immutables = ('table_name', 'schema_name', 'required_properties',
-				'optional_properties', 'pkey', 'removal_query', 'creation_query')
+				'optional_properties', 'pkey', 'removal_query', 'modification_query', 'creation_query')
 		if name in immutables:
 			raise AttributeError("Cannot modify .%s" % name)
 		return type.__setattr__(cls, name, value)

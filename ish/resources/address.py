@@ -22,6 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from psycopg2 import IntegrityError
 from ish.resources import ImpulseObject, ImmutabilityMeta, ConstraintRetriever
 
 
@@ -36,8 +37,9 @@ class Address(ImpulseObject):
 	schema_name = 'systems'
 	required_properties = ('address', 'isprimary', 'family', 'config')
 	optional_properties = ('mac', 'class', 'comment')
-	removal_query = """SELECT api.remove_interface_address('%s');"""
 	# Query that removes the object
+	removal_query = """SELECT api.remove_interface_address('%s');"""
+	modification_query = ("SELECT api.modify_interface_address('{address}', '{field}', '{val}')")
 	creation_query = ("""SELECT api.create_interface_address(""" +
 			"""'{mac}', '{address}', '{config}', '{klass}', '{isprimary}',""" +
 			"""'{comment}');""")  # Query to create an object
@@ -100,7 +102,12 @@ class Address(ImpulseObject):
 		query = self.creation_query.format(mac=self.mac, address=self.address,
 				config=self.config, klass=getattr(self, 'class'),
 				isprimary=self.isprimary, comment=self.comment)
-		self._conn.execute(query)
+		try:
+			self._conn.execute(query)
+		except IntegrityError:
+			for key in self.optional_properties + self.required_properties:
+				query = self.modification_query.format(address=self.address, field=key, val=self.__dict__[key])
+				self._conn.execute(query)
 		obj = self.find(self.address)
 		self.__dict__ = obj .__dict__
 		return obj
@@ -200,8 +207,9 @@ class IPRange(ImpulseObject):
 			'class')
 	optional_properties = ('comment',)
 	removal_parameter = "name"
-	removal_query = """SELECT api.remove_ip_range('%s');"""
 	# Query that removes the object
+	removal_query = """SELECT api.remove_ip_range('%s');"""
+	modification_query = ("SELECT api.modify_ip_range('{name}', '{field}', '{val}')")
 	creation_query = ("""SELECT api.create_ip_range(""" +
 			"""'{name}', '{first_ip}', '{last_ip}', '{subnet}', '{use}',""" +
 			"""'{in_class}', '{comment}');""")  # Query to create an object
@@ -242,7 +250,12 @@ class IPRange(ImpulseObject):
 				first_ip=self.first_ip, last_ip=self.last_ip, subnet=self.subnet,
 				use=self.use, in_class=getattr(self, 'class'),
 				comment=self.comment)
-		self._conn.execute(query)
+		try:
+			self._conn.execute(query)
+		except IntegrityError:
+			for key in self.optional_properties + self.required_properties:
+				query = self.modification_query.format(name=self.name, field=key, val=self.__dict__[key])
+				self._conn.execute(query)
 		obj = self.find(self.system_name)
 		self.__dict__ = obj .__dict__
 		return obj

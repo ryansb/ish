@@ -23,6 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from ish import get_username
+from psycopg2 import IntegrityError
 from ish.resources import ImpulseObject, ImmutabilityMeta, ConstraintRetriever
 from ish.resources.address import Address
 
@@ -47,8 +48,9 @@ class System(ImpulseObject):
 	schema_name = 'systems'
 	required_properties = ('system_name', 'type', 'os_name')
 	optional_properties = ('comment', )
-	removal_query = """SELECT api.remove_system('%s');"""
 	# Query to remove the object
+	removal_query = """SELECT api.remove_system('%s');"""
+	modification_query = ("SELECT api.modify_system('{system_name}', '{field}', '{val}')")
 	creation_query = ("SELECT api.create_system('{system_name}', '{owner}',"
 	+ "'{sys_type}', '{os_name}', '{comment}');")  # Query to create an object
 
@@ -191,7 +193,12 @@ class System(ImpulseObject):
 		query = self.creation_query.format(system_name=self.system_name,
 				owner=self.owner, sys_type=self.type, os_name=self.os_name,
 				comment=self.comment)
-		self._conn.execute(query)
+		try:
+			self._conn.execute(query)
+		except IntegrityError:
+			for key in self.optional_properties + self.required_properties:
+				query = self.modification_query.format(system_name=self.system_name, field=key, val=self.__dict__[key])
+				self._conn.execute(query)
 		obj = self.find(self.system_name)
 		self.__dict__ = obj .__dict__
 		return obj
@@ -204,8 +211,9 @@ class Interface(ImpulseObject):
 	schema_name = 'systems'
 	required_properties = ('name', 'mac')
 	optional_properties = ('system_name', 'comment')
-	removal_query = """SELECT api.remove_interface('%s');"""
 	# Query that removes the object
+	removal_query = """SELECT api.remove_interface('%s');"""
+	modification_query = ("SELECT api.modify_interface('{mac}', '{field}', '{val}')")
 	creation_query = ("""SELECT api.create_interface('{sys_name}', '{mac}', """
 			+ """'{name}', '{comment}');""")  # Query to create an object
 	_constraints = None
@@ -279,7 +287,12 @@ class Interface(ImpulseObject):
 			self.comment = ''
 		query = self.creation_query.format(sys_name=self.system_name, mac=self.mac,
 				name=self.name, comment=self.comment)
-		self._conn.execute(query)
+		try:
+			self._conn.execute(query)
+		except IntegrityError:
+			for key in self.optional_properties + self.required_properties:
+				query = self.modification_query.format(mac=self.mac, field=key, val=self.__dict__[key])
+				self._conn.execute(query)
 		obj = self.find(self.mac)
 		self.__dict__ = obj.__dict__
 		return obj
