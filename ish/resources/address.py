@@ -143,8 +143,9 @@ class Subnet(ImpulseObject):
 			'owner')
 	optional_properties = ('comment',)
 	removal_parameter = 'subnet'
-	removal_query = """SELECT api.remove_ip_subnet('%s');"""
 	# Query that removes the object
+	removal_query = """SELECT api.remove_ip_subnet('%s');"""
+	modification_query = ("SELECT api.modify_ip_subnet('{subnet}', '{field}', '{val}')")
 	creation_query = ("""SELECT api.create_ip_subnet(""" +
 			"""'{subnet}', '{name}', '{comment}', '{autogen}', '{dhcp}',""" +
 			"""'{zone}', '{owner}');""")  # Query to create an object
@@ -205,7 +206,12 @@ class Subnet(ImpulseObject):
 				first_ip=self.first_ip, last_ip=self.last_ip, subnet=self.subnet,
 				use=self.use, in_class=getattr(self, 'class'),
 				comment=self.comment)
-		self._conn.execute(query)
+		try:
+			self._conn.execute(query)
+		except IntegrityError:
+			for key in self.optional_properties + self.required_properties:
+				query = self.modification_query.format(subnet=self.subnet, field=key, val=self.__dict__[key])
+				self._conn.execute(query)
 		obj = self.find(self.system_name)
 		self.__dict__ = obj .__dict__
 		return obj
