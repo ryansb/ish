@@ -22,6 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from ish import ish_prompt
 from psycopg2 import IntegrityError
 from ish.resources import ImpulseObject, ImmutabilityMeta, ConstraintRetriever
 
@@ -111,6 +112,23 @@ class Address(ImpulseObject):
 		obj = self.find(self.address)
 		self.__dict__ = obj .__dict__
 		return obj
+
+	def use_unused_address(self, ipr=None):
+		"""
+		Description: Grab an unused address from an IPRange, specified by its name
+		If no parameters are given, it puts up a prompt to ask for the IPRange to use
+		If an IPRange object is given, it gets the address from that object
+		If a string is given, it gets the IPRange with the name specified
+		returns the address that was used, and assigns the free address to the
+		"Address.address" attribute
+		"""
+		if not ipr:
+			ipr = ish_prompt("Select an IP Range", constraints=[i.name for i in IPRange.all()])
+		if not isinstance(IPRange, ipr):
+			iprange = IPRange.find(ipr)
+		else: iprange = ipr
+		self.address = iprange.get_unused_address()
+		return self.address
 
 
 class Subnet(ImpulseObject):
