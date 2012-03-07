@@ -27,8 +27,8 @@ from ish.resources.system import System
 
 
 class TestSystemObject(unittest.TestCase):
-	def setUp(self):
-		pass
+    def setUp(self):
+        pass
 
-	def tearDown(self):
-		pass
+    def tearDown(self):
+        pass
